@@ -1,0 +1,82 @@
+cmake_minimum_required(VERSION 3.11...4.0)
+project(FCG2025-1)
+
+# Define o padrão do C++
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+# Ativa o FetchContent
+include(FetchContent)
+
+# Configura o FetchContent para baixar e compilar GLFW automaticamente
+FetchContent_Declare(
+  glfw
+  GIT_REPOSITORY https://github.com/glfw/glfw.git
+  GIT_TAG master  # Define a versão desejada da GLFW
+)
+
+# Faz o download e compila as bibliotecas
+FetchContent_MakeAvailable(glfw)
+
+
+FetchContent_Declare(
+	glm
+	GIT_REPOSITORY	https://github.com/g-truc/glm.git
+	GIT_TAG 	1.0.1
+)
+
+FetchContent_MakeAvailable(glm)
+
+# Configura o FetchContent para baixar a stb_image automaticamente
+FetchContent_Declare(
+  stb_image
+  GIT_REPOSITORY https://github.com/nothings/stb.git
+  GIT_TAG master
+)
+
+FetchContent_MakeAvailable(stb_image)
+
+
+# Adiciona as pastas de cabeçalhos
+include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_SOURCE_DIR}/common)
+include_directories(${CMAKE_SOURCE_DIR}/include/glad)
+include_directories(${glm_SOURCE_DIR})
+include_directories(${stb_image_SOURCE_DIR})
+
+
+# Lista de exemplos/exercícios (sem extensão)
+# Atualizado: HelloTriangle agora está em Exercicios/Lista2/HelloTriangle
+set(EXERCISES
+    Exercicios/Lista2/HelloTriangle
+    Exercicios/Lista1/Ex5
+)
+
+add_compile_options(-Wno-pragmas)
+
+# Define as bibliotecas para cada sistema operacional
+if(WIN32)
+    set(OPENGL_LIBS opengl32)
+elseif(APPLE)
+    find_library(OpenGL_LIBRARY OpenGL)
+    set(OPENGL_LIBS ${OpenGL_LIBRARY})
+else()
+    find_package(OpenGL REQUIRED)
+    set(OPENGL_LIBS ${OPENGL_gl_LIBRARY})
+endif()
+
+# Caminho do arquivo da GLAD
+set(GLAD_C_FILE "${CMAKE_SOURCE_DIR}/common/glad.c")
+
+# Verifica se o arquivo da GLAD está no lugar
+if (NOT EXISTS ${GLAD_C_FILE})
+    message(FATAL_ERROR "Arquivo glad.c não encontrado! Baixe a GLAD manualmente em https://glad.dav1d.de/ e coloque glad.h em include/glad/ e glad.c em common/")
+endif()
+
+# Cria os executáveis
+foreach(EXERCISE ${EXERCISES})
+    get_filename_component(EXE_NAME ${EXERCISE} NAME)
+    add_executable(${EXE_NAME} src/${EXERCISE}.cpp ${GLAD_C_FILE})
+    target_include_directories(${EXE_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/include/glad ${glm_SOURCE_DIR} ${stb_image_SOURCE_DIR})
+    target_link_libraries(${EXE_NAME} glfw ${OPENGL_LIBS} glm::glm)
+endforeach()
