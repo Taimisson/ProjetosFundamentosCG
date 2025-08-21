@@ -1,82 +1,122 @@
-# Processamento Gráfico 2025/2
+# Projeto de Exercícios de Processamento Gráfico
 
-Este repositório contém exemplos e códigos utilizados na disciplina de **Processamento Gráfico: Fundamentos** do curso Ciência da Computação da Unisinos. Ele é estruturado para facilitar a organização dos arquivos e a compilação dos projetos utilizando CMake.
+Repositório para os exercícios da disciplina **Processamento Gráfico / Fundamentos de Computação Gráfica** utilizando **OpenGL moderno (Core Profile)** em C++.
 
-## 📂 Estrutura do Repositório
+## 👥 Integrantes do Grupo
+Preencha com os nomes do(s) autor(es):
+- Nome 1 (RA)  
+- Nome 2 (opcional)  
+- Nome 3 (opcional)
 
-```plaintext
-📂 FCG2025-1/
-├── 📂 include/               # Cabeçalhos e bibliotecas de terceiros
-│   ├── 📂 glad/              # Cabeçalhos da GLAD (OpenGL Loader)
-│   │   ├── glad.h
-│   │   ├── 📂 KHR/           # Diretório com cabeçalhos da Khronos (GLAD)
-│   │       ├── khrplatform.h
-├── 📂 common/                # Código reutilizável entre os projetos
-│   ├── glad.c                 # Implementação da GLAD
-├── 📂 src/                    # Código-fonte dos exemplos e exemplos/
-│   ├── HelloTriangle.cpp      # Exemplo básico de renderização com OpenGL
-│   ├── ...                    # Outros exemplos e exercícios futuros
-├── 📂 build/                  # Diretório gerado pelo CMake (não incluído no repositório)
-├── 📄 CMakeLists.txt          # Configuração do CMake para compilar os projetos
-├── 📄 README.md               # Este arquivo, com a documentação do repositório
-├── 📄 GettingStarted.md       # Tutorial detalhado sobre como compilar usando o CMake
-├── 📄 ...  
+## 🎯 Objetivo
+Centralizar, compilar e executar os exercícios práticos (listas) envolvendo pipeline programável (Vertex/Fragment Shaders), criação de janelas, desenho de primitivas e uso de bibliotecas auxiliares para desenvolvimento gráfico.
+
+## 🧩 Exercícios Atuais
+| Executável | Fonte | Lista | Descrição Resumida |
+|-----------|-------|-------|--------------------|
+| `HelloTriangle` | `src/Lista2/HelloTriangle.cpp` | Lista 2 | Exemplo inicial (Hello Triangle) para demonstrar criação de contexto e renderização básica. |
+| `Ex5` | `src/Lista1/Ex5.cpp` | Lista 1 | Desenha dois triângulos (formando um retângulo aberto) com shader simples e mostra FPS no título. |
+
+## 🏗️ Tecnologias & Dependências
+As bibliotecas externas são baixadas automaticamente via **CMake FetchContent**:
+- **GLFW** (janela, contexto OpenGL, input)
+- **GLAD** (carregador de funções OpenGL) – arquivo `common/glad.c`
+- **GLM** (matemática para gráficos)
+- **stb_image** (carregamento de texturas – ainda não usado, mas preparado)
+
+Requisitos mínimos recomendados:
+- CMake >= 3.11
+- Compilador C++ com suporte a C++17 (g++ 9+, clang 9+, MSVC 2019+)
+- Driver/GPU com suporte a OpenGL 4.0 (ajustável se necessário)
+
+## 📂 Estrutura Principal
 ```
+common/        -> glad.c e utilitários
+include/       -> headers (glad.h, etc.)
+src/Lista1/    -> Exercícios da Lista 1
+src/Lista2/    -> Exercícios da Lista 2
+CMakeLists.txt -> Configuração de build (gera um executável por exercício)
+```
+Cada novo exercício inserido em `src/ListaX/Nome.cpp` deve ser adicionado à lista `EXERCISES` no `CMakeLists.txt`.
 
-Siga as instruções detalhadas em [GettingStarted.md](GettingStarted.md) para configurar e compilar o projeto.
+## 🔧 Compilação
+### Opção 1: Terminal (genérico)
+```bash
+# Na raiz do repositório
+mkdir -p build
+cd build
+cmake ..
+cmake --build . --config Debug
+```
+Os executáveis serão gerados dentro de `build/` (ou em subpastas conforme o gerador).
 
-## ⚠️ **IMPORTANTE: Baixar a GLAD Manualmente**
-Para que o projeto funcione corretamente, é necessário **baixar a GLAD manualmente** utilizando o **GLAD Generator**.
+### Opção 2: CLion
+- Abrir a pasta do projeto.
+- CLion detecta o CMake automaticamente.
+- Escolher o alvo (por exemplo, `HelloTriangle`) e rodar.
 
-### 🔗 **Acesse o web service do GLAD**:
-👉 [GLAD Generator](https://glad.dav1d.de/)
+### Opção 3: VS Code
+- Instalar extensões: C/C++, CMake Tools.
+- Abrir a pasta do projeto.
+- Command Palette: `CMake: Configure` e depois `CMake: Build`.
+- Selecionar o target desejado.
 
-### ⚙️ **Configuração necessária:**
-- **API:** OpenGL  
-- **Version:** 3.3+ (ou superior compatível com sua máquina)  
-- **Profile:** Core  
-- **Language:** C/C++  
+## ▶️ Execução
+Após compilar:
+- Linux/macOS: `./HelloTriangle` ou `./Ex5`
+- Windows (PowerShell/CMD dentro de build): `./HelloTriangle.exe` ou `./Ex5.exe`
 
-### 📥 **Baixe e extraia os arquivos:**
-Após a geração, extraia os arquivos baixados e coloque-os nos diretórios correspondentes:
-- Copie **`glad.h`** para `include/glad/`
-- Copie **`khrplatform.h`** para `include/glad/KHR/`
-- Copie **`glad.c`** para `common/`
+A janela deve exibir:
+- FPS atualizado (no caso de `Ex5`).
+- Um triângulo azul (ou dois formando figura) renderizado via shaders simples.
 
-🚨 **Sem esses arquivos, a compilação falhará!** É necessário colocar esses arquivos nos diretórios corretos, conforme a orientação acima.
+## 🎮 Controles
+| Tecla | Ação |
+|-------|------|
+| ESC   | Fecha a janela / encerra o loop principal |
+
+## 🛠️ Customizações Rápidas
+- Alterar resolução: modificar constantes `WIDTH` e `HEIGHT` no arquivo do exercício.
+- Alterar cor: editar a chamada `glUniform4f(colorLoc, ...)` ou o fragment shader.
+- Ajustar versão OpenGL: comentar ou modificar `glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, ...)` e `MINOR` se houver incompatibilidade.
+
+## ➕ Adicionando um Novo Exercício
+1. Criar arquivo: `src/ListaN/MeuEx.cpp`.
+2. Copiar um template básico (por exemplo, de `HelloTriangle.cpp`).
+3. Adicionar o caminho (sem `.cpp`) em `EXERCISES` dentro do `CMakeLists.txt`:
+   ```cmake
+   set(EXERCISES
+       Lista2/HelloTriangle
+       Lista1/Ex5
+       Lista3/MeuEx
+   )
+   ```
+4. Reconfigurar o CMake (rodar `cmake ..` novamente) e compilar.
+
+## ❗ Solução de Problemas
+| Problema | Causa Provável | Ação |
+|----------|----------------|------|
+| Janela não abre / crash | Versão OpenGL não suportada | Comentar hints de versão ou reduzir para 3.3 |
+| Erro GLAD / símbolo indefinido | `glad.c` não incluido | Confirmar que `common/glad.c` está no alvo (já está no loop do CMake) |
+| Tela preta | Geometria não enviada / shader falhou | Verificar logs de compilação de shader no terminal |
+| Build falha no Windows | Falta de toolchain | Instalar MSVC Build Tools ou Mingw-w64 |
+| FPS muito baixo | Driver/software rasterizer | Atualizar driver GPU / usar GPU dedicada |
+
+## 📄 Notas Didáticas
+- Código visa clareza; otimizações e abstrações podem ser adicionadas posteriormente.
+- Usa pipeline programável mínimo (Vertex + Fragment Shader hardcoded em strings C++).
+
+## ✅ Checklist de Entrega (ajuste conforme necessário)
+- [ ] Compila em máquina local
+- [ ] README preenchido (integrantes, descrição)
+- [ ] Executáveis gerados (`HelloTriangle`, `Ex5`)
+- [ ] Comentários explicativos mantidos
+
+## 📌 Próximos Passos Sugeridos
+- Inserir shaders externos carregados de arquivo.
+- Adicionar cores por vértice (atributos adicionais).
+- Introduzir índice (EBO) e uso de `glDrawElements`.
+- Integrar texturas (stb_image) e matrizes de transformação (GLM).
 
 ---
-
-## 📚 Sugestão de Estrutura para seu próprio repositório
-
-Recomendamos que você crie um repositório próprio, estruturado com subdiretórios dentro de `src`, para organizar suas atividades da disciplina:
-
-```
-📁 PG2025-2/
-├── 📁 src/
-│   ├── 📁 Lista1/
-│   │   ├── Ex1.cpp
-│   │   ├── Ex2.cpp
-│   │   ├── ...
-│   │   └── README.md
-│   ├── 📁 Lista2/
-│   │   ├── Ex1.cpp
-│   │   ├── ...
-│   │   └── README.md
-│   ├── 📁 TrabalhoGrauA/
-│   │   ├── main.cpp
-│   │   └── README.md
-│   ├── 📁 ...
-├── 📁 include/   # Cabeçalhos comuns (se necessário)
-├── 📁 common/    # Arquivos comuns (como glad.c)
-├── 📄 CMakeLists.txt
-└── 📄 README.md
-```
-
-> Cada diretório dentro de `src/` pode conter um arquivo `README.md` com informações específicas sobre a atividade ou exercício implementado.
-
-Consulte os seguintes materiais para ajuda adicional:
-- [Tutorial de Entregas pelo Github](TutorialEntregasGithub.pdf)
-- [Organizando seu repositório no Github](OrganizandoRepositorioGithub.pdf)
-
 

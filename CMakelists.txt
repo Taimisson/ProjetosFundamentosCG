@@ -48,8 +48,8 @@ include_directories(${stb_image_SOURCE_DIR})
 # Lista de exemplos/exercícios (sem extensão)
 # Atualizado: HelloTriangle agora está em Exercicios/Lista2/HelloTriangle
 set(EXERCISES
-    Exercicios/Lista2/HelloTriangle
-    Exercicios/Lista1/Ex5
+    Lista2/HelloTriangle
+    Lista1/Ex5
 )
 
 add_compile_options(-Wno-pragmas)
