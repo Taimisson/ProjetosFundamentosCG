@@ -4,9 +4,7 @@ Repositório para os exercícios da disciplina **Processamento Gráfico / Fundam
 
 ## 👥 Integrantes do Grupo
 Preencha com os nomes do(s) autor(es):
-- Nome 1 (RA)  
-- Nome 2 (opcional)  
-- Nome 3 (opcional)
+Taimisson de Carvalho Schardosim
 
 ## 🎯 Objetivo
 Centralizar, compilar e executar os exercícios práticos (listas) envolvendo pipeline programável (Vertex/Fragment Shaders), criação de janelas, desenho de primitivas e uso de bibliotecas auxiliares para desenvolvimento gráfico.
