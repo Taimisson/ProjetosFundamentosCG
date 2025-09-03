@@ -9,12 +9,6 @@ Taimisson de Carvalho Schardosim
 ## 🎯 Objetivo
 Centralizar, compilar e executar os exercícios práticos (listas) envolvendo pipeline programável (Vertex/Fragment Shaders), criação de janelas, desenho de primitivas e uso de bibliotecas auxiliares para desenvolvimento gráfico.
 
-## 🧩 Exercícios Atuais
-| Executável | Fonte | Lista | Descrição Resumida |
-|-----------|-------|-------|--------------------|
-| `HelloTriangle` | `src/Lista2/HelloTriangle.cpp` | Lista 2 | Exemplo inicial (Hello Triangle) para demonstrar criação de contexto e renderização básica. |
-| `Ex5` | `src/Lista1/Ex5.cpp` | Lista 1 | Desenha dois triângulos (formando um retângulo aberto) com shader simples e mostra FPS no título. |
-
 ## 🏗️ Tecnologias & Dependências
 As bibliotecas externas são baixadas automaticamente via **CMake FetchContent**:
 - **GLFW** (janela, contexto OpenGL, input)
@@ -99,22 +93,6 @@ A janela deve exibir:
 | Tela preta | Geometria não enviada / shader falhou | Verificar logs de compilação de shader no terminal |
 | Build falha no Windows | Falta de toolchain | Instalar MSVC Build Tools ou Mingw-w64 |
 | FPS muito baixo | Driver/software rasterizer | Atualizar driver GPU / usar GPU dedicada |
-
-## 📄 Notas Didáticas
-- Código visa clareza; otimizações e abstrações podem ser adicionadas posteriormente.
-- Usa pipeline programável mínimo (Vertex + Fragment Shader hardcoded em strings C++).
-
-## ✅ Checklist de Entrega (ajuste conforme necessário)
-- [ ] Compila em máquina local
-- [ ] README preenchido (integrantes, descrição)
-- [ ] Executáveis gerados (`HelloTriangle`, `Ex5`)
-- [ ] Comentários explicativos mantidos
-
-## 📌 Próximos Passos Sugeridos
-- Inserir shaders externos carregados de arquivo.
-- Adicionar cores por vértice (atributos adicionais).
-- Introduzir índice (EBO) e uso de `glDrawElements`.
-- Integrar texturas (stb_image) e matrizes de transformação (GLM).
 
 ---
 
