@@ -1,37 +1,66 @@
-# Nome do Projeto
+# UNISINOS – Lista de Exercícios 1 (Processamento Gráfico)
 
-Trabalho desenvolvido para a disciplina **Algoritmos e Programação: Fundamentos**.
+Introdução à OpenGL Moderna – Shaders & Buffers
 
-## 👥 Integrantes do Grupo
+Integrantes (se aplicável):
+- Taimisson de Carvalho Schardosim
 
-- Nome 1
-- Nome 2 (se houver)
-- Nome 3 (se houver)
+Como executar (CLion)
+- Abra o projeto no CLion.
+- Os alvos (targets) já estão configurados no CMake para cada exercício da pasta src/Lista1.
+- No combo de Run/Debug, selecione o alvo desejado (Ex05a, Ex05b, …, Ex08) e rode.
+- Alternativa: abra o painel CMake, escolha o target e clique em Build/Run.
 
-## 🚀 Como executar 
+Pré-requisitos do projeto
+- CMake baixa GLFW e GLM automaticamente (FetchContent).
+- GLAD já está no repositório: common/glad.c e include/glad/glad.h (CMake verifica isso).
+- OpenGL: no Windows, linka com opengl32 automaticamente.
 
-Exemplo:
-> Este programa foi feito em **linguagem C++** e pode ser compilado em uma IDE como o **VS Code** (com compilador instalado).
-> No seu computador (VS Code ou outro editor):
-> 1. Compile o código (por exemplo, com o comando: `gcc arquivo.c -o programa`)
-> 2. Execute com: `./programa`
+Arquivos/Targets desta lista
+- Ex05a: dois triângulos – preenchido.
+- Ex05b: dois triângulos – contorno.
+- Ex05c: dois triângulos – pontos.
+- Ex05d: dois triângulos – três formas juntas.
+- Ex06: círculo por equação paramétrica.
+- Ex06a: octógono.
+- Ex06b: pentágono.
+- Ex06c: pac-man.
+- Ex06d: fatia de pizza.
+- Ex06e: desafio – estrela.
+- Ex07: espiral.
+- Ex08: triângulo com cores por vértice (buffers e atributos mapeados no vertex shader).
+Observação: HelloTriangle (referência) está em src/Lista2/HelloTriangle.cpp.
 
-## 💡 Sobre o Programa
+Como adicionar um novo exercício (ex.: Ex05b.cpp)
+1) Crie o arquivo em src/Lista1/Ex05b.cpp.
+2) Edite o CMakeLists.txt da raiz e acrescente Lista1/Ex05b na variável EXERCISES.
+3) Salve: o CLion recarrega o CMake automaticamente. Se necessário, use Tools > CMake > Reset Cache and Reload Project ou o botão “Reload CMake Project”.
+4) Selecione o target Ex05b e rode.
+Dica: quando o CLion perguntar “Add to targets”, desmarque. A inclusão é controlada pelo CMake (já adicionamos via lista EXERCISES) e o GLAD é ligado automaticamente por ${GLAD_C_FILE}.
 
-Descreva brevemente o que o programa faz. Exemplo:
-> O programa simula a propagação de um vírus em uma população ao longo dos dias, considerando taxa de contágio, vacinação e eventos aleatórios.
+Enunciado resumido
+0) Leitura obrigatória:
+- https://learnopengl.com/#!Getting-started/Hello-Triangle
+- https://learnopengl.com/#!Getting-started/Shaders
+- http://antongerdelan.net/opengl/hellotriangle.html
+Sugestões: Real-Time Rendering (cap. 2) e Computação Gráfica – Teoria e Prática (seção 5.1).
+1) O que é GLSL? Quais shaders obrigatórios no pipeline e o que processam?
+2) O que são primitivas e como armazenar vértices na OpenGL?
+3) Explique VBO, VAO e EBO, e a relação entre eles (pode ser um diagrama).
+4) Analise HelloTriangle e localize shaders, VBOs e VAO.
+5) Desenhe 2 triângulos: a) preenchido b) contorno c) pontos d) juntos.
+6) Desenhe um círculo por parametrização. Depois: a) octógono b) pentágono c) pac-man d) fatia de pizza e) estrela (desafio).
+7) Desenhe uma espiral.
+8) Dado um triângulo P1/P2/P3 com cores RGB: a) buffers (VBO/VAO/EBO) b) atributos no vertex shader e implemente.
+9) Reproduza um desenho quadriculado com primitivas (pode usar múltiplos VAOs e draw calls).
+10) Implemente uma classe de shaders por arquivos (feito em aula, repositório atualizado).
 
-## 📌 Observações
+Dúvidas comuns
+- “Arquivo glad.c não encontrado”: verifique common/glad.c e include/glad/glad.h. Estes caminhos já estão corretos no CMake (variável GLAD_C_FILE). Se removidos, baixe em https://glad.dav1d.de/ e recoloque nos mesmos diretórios.
+- “Add to targets” ao criar arquivo: deixe desmarcado; gerenciamos pelo CMake.
+- Recarregar CMake: Tools > CMake > Reset Cache and Reload Project, ou ícone de reload no painel CMake; alterações em CMakeLists normalmente disparam reload automático.
 
-Exemplo:
-> - O código está no arquivo `main.c` (ou outro nome que usaram).
-> - Não é necessário instalar bibliotecas extras.
-
-## 🙌 Créditos (opcional)
-
-Se desejar, agradeça colegas, tutores ou materiais que ajudaram.
-
-## 📚 Referências 
-
-Links ou materiais que foram úteis no desenvolvimento.
-- [Guia básico de Markdown no GitHub](https://docs.github.com/pt/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
+Referências
+- LearnOpenGL (Hello Triangle e Shaders)
+- Antón Gerdelan – Hello Triangle
+- Real-Time Rendering (cap. 2) e Computação Gráfica – Teoria e Prática (seção 5.1)

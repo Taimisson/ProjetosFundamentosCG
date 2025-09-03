@@ -49,7 +49,19 @@ include_directories(${stb_image_SOURCE_DIR})
 # Atualizado: HelloTriangle agora está em Exercicios/Lista2/HelloTriangle
 set(EXERCISES
     Lista2/HelloTriangle
-    Lista1/Ex5
+    Lista1/Ex05a
+    Lista1/Ex05b
+    Lista1/Ex05c
+    Lista1/Ex05d
+    Lista1/Ex06
+    Lista1/Ex06a
+    Lista1/Ex06b
+    Lista1/Ex06c
+    Lista1/Ex06d
+    Lista1/Ex06e
+    Lista1/Ex07
+    Lista1/Ex08
+    Lista1/Ex09
 )
 
 add_compile_options(-Wno-pragmas)
@@ -69,7 +81,7 @@ endif()
 set(GLAD_C_FILE "${CMAKE_SOURCE_DIR}/common/glad.c")
 
 # Verifica se o arquivo da GLAD está no lugar
-if (NOT EXISTS ${GLAD_C_FILE})
+if(NOT EXISTS "${GLAD_C_FILE}")
     message(FATAL_ERROR "Arquivo glad.c não encontrado! Baixe a GLAD manualmente em https://glad.dav1d.de/ e coloque glad.h em include/glad/ e glad.c em common/")
 endif()
 
