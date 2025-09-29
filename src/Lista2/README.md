@@ -1,13 +1,94 @@
-# Lista de Exercícios 2 - Processamento Gráfico
-## Transformações e Viewport
+# UNISINOS – Lista de Exercícios 2 (Processamento Gráfico)
 
-### Descrição
-Esta lista aborda conceitos fundamentais de transformações de coordenadas, matrizes de projeção ortográfica e controle de viewport em OpenGL.
+Transformações e Viewport
 
-### Exercícios Implementados
+**Integrante:**
+- Taimisson de Carvalho Schardosim
 
-#### Ex01.cpp - Modificação da Janela do Mundo
-**Objetivo:** Modificar a janela do mundo (window/ortho) para os limites: xmin=-10, xmax=10, ymin=-10, ymax=10.
+## Como executar (CLion)
+- Abra o projeto no CLion.
+- Os alvos (targets) já estão configurados no CMake para cada exercício da pasta src/Lista2.
+- No combo de Run/Debug, selecione o alvo desejado (L2_Ex01, L2_Ex02, L2_Ex04, L2_Ex05, L2_Ex06) e rode.
+- Alternativa: abra o painel CMake, escolha o target e clique em Build/Run.
+
+## Pré-requisitos do projeto
+- CMake baixa GLFW e GLM automaticamente (FetchContent).
+- GLAD já está no repositório: common/glad.c e include/glad/glad.h (CMake verifica isso).
+- OpenGL: no Windows, linka com opengl32 automaticamente.
+
+## Exercícios Implementados
+
+### Exercícios de Sistemas de Coordenadas
+- **L2_Ex01**: Janela do mundo expandida (-10 a 10) - Coordenadas de mundo ampliadas
+- **L2_Ex02**: Sistema de coordenadas de tela (0-800, 600-0) - Coordenadas de pixel
+
+### Exercícios de Viewport
+- **L2_Ex04**: Controle de viewport - Renderização em quadrante específico
+- **L2_Ex05**: Múltiplos viewports - Mesma cena em 4 quadrantes
+
+### Exercícios Interativos
+- **L2_Ex06**: Criação interativa de triângulos com mouse - Geometria dinâmica
+
+### Arquivos de Referência
+- **HelloTriangle**: Exemplo básico de triângulo OpenGL moderna
+- **HelloOrtho**: Demonstração de projeções ortográficas
+- **HelloTransforms**: Transformações básicas com GLM
+- **HelloTransformsHardCoded**: Transformações manuais sem GLM
+- **HelloTexture**: Aplicação básica de texturas
+- **HelloSprites**: Sistema de sprites 2D
+- **Sprite.cpp/h**: Classe para gerenciamento de sprites
+
+## Compilação
+
+### Via CLion (Recomendado)
+1. Abra o projeto no CLion
+2. Selecione o target desejado (ex: L2_Ex01)
+3. Clique em Build/Run ou use Shift+F10
+
+### Via linha de comando
+```bash
+cmake --build cmake-build-debug --target L2_Ex01
+cmake --build cmake-build-debug --target L2_Ex02
+cmake --build cmake-build-debug --target L2_Ex04
+cmake --build cmake-build-debug --target L2_Ex05
+cmake --build cmake-build-debug --target L2_Ex06
+```
+
+## Como adicionar um novo exercício
+1) Crie o arquivo em `src/Lista2/L2_ExXX.cpp`
+2) Edite o `CMakeLists.txt` da raiz e acrescente `Lista2/L2_ExXX` na variável EXERCISES
+3) Salve: o CLion recarrega o CMake automaticamente
+4) Se necessário: Tools > CMake > Reset Cache and Reload Project
+5) Selecione o target L2_ExXX e rode
+
+**Dica:** Quando o CLion perguntar "Add to targets", desmarque. A inclusão é controlada pelo CMake.
+
+## Conceitos Principais Abordados
+
+### Sistemas de Coordenadas
+- **Coordenadas de mundo**: Sistema expandido para objetos maiores
+- **Coordenadas de tela**: Sistema pixel-perfeito para interfaces
+- **Coordenadas normalizadas**: Sistema padrão OpenGL (-1 a 1)
+
+### Matrizes de Projeção
+- **Projeção ortográfica**: Mapeamento 3D → 2D sem perspectiva
+- **glm::ortho()**: Função para criar matrizes de projeção
+- **Transformações de coordenadas**: Conversão entre sistemas
+
+### Viewport e Renderização
+- **Viewport**: Controle da região de renderização na janela
+- **Multiple viewports**: Divisão da tela em múltiplas regiões
+- **Mapeamento de coordenadas**: Mundo → Tela via viewport
+
+### Interatividade
+- **Input do mouse**: Captura de cliques e posições
+- **Geometria dinâmica**: Criação de objetos em tempo real
+- **Feedback visual**: Resposta imediata às ações do usuário
+
+## Detalhamento dos Exercícios
+
+### L2_Ex01 - Modificação da Janela do Mundo
+**Objetivo:** Modificar a janela do mundo para os limites: xmin=-10, xmax=10, ymin=-10, ymax=10.
 
 **Implementação:**
 - Utiliza `glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, -1.0f, 1.0f)`
@@ -16,7 +97,7 @@ Esta lista aborda conceitos fundamentais de transformações de coordenadas, mat
 
 **Conceitos:** Matriz de projeção ortográfica, sistemas de coordenadas
 
-#### Ex02.cpp - Sistema de Coordenadas de Tela
+### L2_Ex02 - Sistema de Coordenadas de Tela
 **Objetivo:** Modificar a janela do mundo para: xmin=0, xmax=800, ymin=600, ymax=0.
 
 **Implementação:**
@@ -27,24 +108,7 @@ Esta lista aborda conceitos fundamentais de transformações de coordenadas, mat
 
 **Conceitos:** Sistema de coordenadas de tela, inversão de eixo Y
 
-#### Ex03.cpp - Desenho com Câmera 2D
-**Objetivo:** Utilizando a câmera 2D do exercício anterior, desenhe algo na tela. O que acontece quando posicionamos os objetos? Por que é útil essa configuração?
-
-**Implementação:**
-- Usa o mesmo sistema de coordenadas do Ex02 (coordenadas de tela)
-- Desenha uma casa simples composta por: base, telhado, porta e janela
-- Cada elemento é posicionado com coordenadas exatas em pixels
-- Demonstra a precisão do posicionamento em coordenadas de tela
-
-**Por que é útil?**
-- **Posicionamento preciso**: Facilita colocar elementos em posições exatas
-- **Interface gráfica**: Ideal para botões, menus, HUDs
-- **Correspondência 1:1**: 1 unidade = 1 pixel na tela
-- **Facilita cálculos**: Dimensões em pixels são intuitivas
-
-**Conceitos:** Coordenadas de pixel, design de interfaces, posicionamento preciso
-
-#### Ex04.cpp - Controle de Viewport
+### L2_Ex04 - Controle de Viewport
 **Objetivo:** Modificar o viewport para desenhar a cena apenas em um quadrante específico da janela.
 
 **Implementação:**
@@ -54,49 +118,73 @@ Esta lista aborda conceitos fundamentais de transformações de coordenadas, mat
 
 **Conceitos:** Viewport, área de renderização, mapeamento de coordenadas
 
-### Compilação e Execução
+### L2_Ex05 - Múltiplos Viewports
+**Objetivo:** Desenhar a mesma cena nos 4 quadrantes da janela.
 
-Para compilar os exercícios, certifique-se de que o CMakeLists.txt está atualizado e execute no CLion:
+**Implementação:**
+- Renderiza a mesma geometria em 4 viewports diferentes
+- Cada quadrante representa uma região da janela (superior esquerdo, superior direito, etc.)
+- Demonstra reutilização de geometria com diferentes áreas de renderização
+- Inclui contornos para destacar as diferentes regiões
 
-1. **Através do CLion:**
-   - Build → Build Project (Ctrl+F9)
-   - Ou clique em "Build" para targets específicos
+**Conceitos:** Múltiplos viewports, reutilização de geometria, divisão de tela
 
-2. **Via linha de comando (se necessário):**
-   ```bash
-   cmake --build cmake-build-debug --target Ex01
-   cmake --build cmake-build-debug --target Ex02
-   cmake --build cmake-debug --target Ex03
-   cmake --build cmake-build-debug --target Ex04
-   ```
+### L2_Ex06 - Criação Interativa de Triângulos
+**Objetivo:** Criar triângulos clicando na tela com o mouse.
 
-### Conceitos Principais Abordados
+**Implementação:**
+- Sistema de input do mouse para capturar cliques
+- A cada 3 cliques, um novo triângulo é formado
+- Cores aleatórias para cada triângulo
+- Visualização de vértices temporários como pontos
+- Contador de triângulos no título da janela
+- Sistema de coordenadas de tela para posicionamento preciso
 
-1. **Matriz de Projeção Ortográfica**: Define como as coordenadas 3D são mapeadas para a tela 2D
-2. **Sistema de Coordenadas**: Diferentes sistemas (mundo, tela, normalizado)
-3. **Viewport**: Controla qual região da janela será usada para renderização
-4. **Transformações de Coordenadas**: Como converter entre diferentes sistemas
+**Conceitos:** Interatividade, input do mouse, criação dinâmica de geometria, coordenadas de tela
 
-### Observações Importantes
+## Análise dos Resultados
 
-- **Ex01**: Amplia o espaço de coordenadas, permitindo objetos maiores
-- **Ex02**: Simula coordenadas de tela (útil para interfaces gráficas)  
-- **Ex03**: Demonstra o uso prático de coordenadas de tela para desenho preciso
-- **Ex04**: Demonstra renderização em sub-regiões da janela
-
-### Análise dos Resultados
-
-#### Ex03 - Por que coordenadas de tela são úteis?
+### Por que coordenadas de tela são úteis?
 
 1. **Precisão**: Você especifica exatamente onde cada pixel será desenhado
 2. **Intuitividade**: As coordenadas correspondem diretamente à posição na tela
 3. **Facilita UI**: Botões, menus e elementos de interface ficam mais fáceis de posicionar
 4. **Compatibilidade**: Funciona bem com ferramentas de design gráfico
+5. **Desenvolvimento de jogos**: Ideal para HUDs, menus e elementos de interface
 
-### Para Estudar Mais
+### Aplicações Práticas
+
+- **L2_Ex01**: Simulações científicas, jogos com mundo expandido
+- **L2_Ex02/L2_Ex06**: Design de interfaces gráficas, editores
+- **L2_Ex04/L2_Ex05**: Aplicações multi-janela, dashboards, ferramentas de análise
+- **L2_Ex06**: Editores gráficos, ferramentas de desenho, CAD simplificado
+
+### Observações Importantes
+
+- **L2_Ex01**: Amplia o espaço de coordenadas, permitindo objetos maiores
+- **L2_Ex02**: Simula coordenadas de tela (útil para interfaces gráficas)
+- **L2_Ex04**: Demonstra renderização em sub-regiões da janela
+- **L2_Ex05**: Mostra como reutilizar geometria em múltiplas regiões
+- **L2_Ex06**: Combina interatividade com coordenadas de tela para criação dinâmica
+
+## Leituras Obrigatórias
+
+### Leituras Principais
+- [LearnOpenGL - Coordinate Systems](https://learnopengl.com/#!Getting-started/Coordinate-Systems)
+- [LearnOpenGL - Transformations](https://learnopengl.com/#!Getting-started/Transformations)
+- [OpenGL Tutorial - Matrix, Projection and Modelview](http://www.opengl-tutorial.org/beginners-tutorials/tutorial-3-matrices/)
+
+### Leituras Complementares
+- Real-Time Rendering (cap. 4 - Transforms)
+- Computer Graphics with OpenGL (cap. 5 - Viewing)
+- Mathematics for 3D Game Programming (cap. 3 - Matrices)
+
+## Para Estudar Mais
 
 - Matriz de projeção ortográfica vs perspectiva
-- Transformações de viewport
-- Pipeline de transformações gráficas
+- Transformações de viewport e scissor test
+- Pipeline completo de transformações gráficas
 - Sistemas de coordenadas homogêneas
 - Design de interfaces gráficas com OpenGL
+- Sistemas de input e interatividade em tempo real
+- Frustum culling e otimizações de renderização
