@@ -1,5 +1,7 @@
 # Ignorar a pasta de build e arquivos temporários do CMake
 /build/
+/cmake-build-debug/
+/cmake-build-release/
 /CMakeCache.txt
 /CMakeFiles/
 /Makefile
@@ -26,9 +28,15 @@ external/
 .vscode/
 CMakeUserPresets.json
 
+# Ignorar configurações específicas do JetBrains IDEs (CLion, IntelliJ, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+
 # Ignorar logs e arquivos de sistema
 *.log
 .DS_Store
 Thumbs.db
-
-
