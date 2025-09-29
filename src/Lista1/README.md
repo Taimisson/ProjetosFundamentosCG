@@ -35,7 +35,7 @@ Introdução à OpenGL Moderna – Shaders & Buffers
 ### Exercícios Avançados
 - **L1_Ex07**: Espiral logarítmica
 - **L1_Ex08**: Triângulo com cores por vértice e pontos circulares suavizados
-- **L1_Ex09**: [Descrição do exercício 9]
+- **L1_Ex09**: Casa quadriculada usando múltiplos VAOs e draw calls
 
 **Observação:** HelloTriangle (referência) está em src/Lista2/HelloTriangle.cpp.
 
