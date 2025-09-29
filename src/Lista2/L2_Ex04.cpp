@@ -1,7 +1,6 @@
 /*
- * Hello Triangle - Código adaptado de:
- *   - https://learnopengl.com/#!Getting-started/Hello-Triangle
- *   - https://antongerdelan.net/opengl/glcontext2.html
+ * L2_Ex04 - Exercício 4 da Lista 2
+ * Modificar o viewport para desenhar a cena apenas em um quadrante da janela da aplicação
  *
  * Adaptado por: Rossana Baptista Queiroz
  *
@@ -11,11 +10,8 @@
  *   - Fundamentos de Computação Gráfica (Jogos Digitais)
  *
  * Descrição:
- *   Este código é o "Olá Mundo" da Computação Gráfica, utilizando OpenGL Moderna.
- *   No pipeline programável, o desenvolvedor pode implementar as etapas de
- *   Processamento de Geometria e Processamento de Pixel utilizando shaders.
- *   Um programa de shader precisa ter, obrigatoriamente, um Vertex Shader e um Fragment Shader,
- *   enquanto outros shaders, como o de geometria, são opcionais.
+ *   Este exercício demonstra como usar viewport para renderizar apenas em uma parte
+ *   da janela da aplicação, criando um efeito de "janela dentro da janela".
  *
  * Histórico:
  *   - Versão inicial: 07/04/2017
@@ -48,6 +44,7 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 // Protótipos das funções
 int setupShader();
 int setupGeometry();
+int setupContour(); // Nova função para criar o contorno
 
 // Dimensões da janela (pode ser alterado em tempo de execução)
 const GLuint WIDTH = 800, HEIGHT = 600;
@@ -101,7 +98,7 @@ int main()
 	// #endif
 
 	// Criação da janela GLFW
-	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Ola Triangulo! -- Rossana", nullptr, nullptr);
+	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "L2_Ex04 -- Taimisson", nullptr, nullptr);
 	if (!window)
 	{
 		std::cerr << "Falha ao criar a janela GLFW" << std::endl;
@@ -132,7 +129,9 @@ int main()
 
 	// Gerando um buffer simples, com a geometria de um triângulo
 	GLuint VAO = setupGeometry();
-	
+	// Gerando buffer para o contorno do triângulo
+	GLuint contourVAO = setupContour();
+
 	glUseProgram(shaderID); // Reseta o estado do shader para evitar problemas futuros
 
 	double prev_s = glfwGetTime();	// Define o "tempo anterior" inicial.
@@ -163,7 +162,7 @@ int main()
 
 				// Cria uma string e define o FPS como título da janela.
 				char tmp[256];
-				sprintf(tmp, "Ola Triangulo! -- Rossana\tFPS %.2lf", fps);
+				sprintf(tmp, "L2_Ex04 - Viewport Quadrante -- Rossana\tFPS %.2lf", fps);
 				glfwSetWindowTitle(window, tmp);
 
 				title_countdown_s = 0.1; // Reinicia o temporizador para atualizar o título periodicamente.
@@ -177,7 +176,7 @@ int main()
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // cor de fundo
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glLineWidth(10);
+		glLineWidth(2);  // Linha fina para o contorno
 		glPointSize(20);
 
 		// Definindo as dimensões da viewport com as mesmas dimensões da janela da aplicação
@@ -185,13 +184,15 @@ int main()
 		glfwGetFramebufferSize(window, &width, &height);
 		glViewport(400, 300, 400, 300);
 
+		// Primeiro desenha o triângulo preenchido rosa
 		glBindVertexArray(VAO); // Conectando ao buffer de geometria
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
-		// Chamada de desenho - drawcall
-		// Poligono Preenchido - GL_TRIANGLES
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		// Depois desenha o contorno preto
+		glBindVertexArray(contourVAO); // Conectando ao buffer do contorno
+		glDrawArrays(GL_LINE_LOOP, 0, 3);
 
-		glBindVertexArray(0); // Desnecessário aqui, pois não há múltiplos VAOs
+		glBindVertexArray(0);
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);
@@ -214,7 +215,7 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 
 // Esta função está bastante hardcoded - objetivo é compilar e "buildar" um programa de
 //  shader simples e único neste exemplo de código
-//  O código fonte do vertex e fragment shader está nos arrays vertexShaderSource e
+//  O código fonte do vertex e fragment e shader está nos arrays vertexShaderSource e
 //  fragmentShader source no iniçio deste arquivo
 //  A função retorna o identificador do programa de shader
 int setupShader()
@@ -271,21 +272,12 @@ int setupShader()
 // A função retorna o identificador do VAO
 int setupGeometry()
 {
-	// Aqui setamos as coordenadas x, y e z do triângulo e as armazenamos de forma
-	// sequencial, já visando mandar para o VBO (Vertex Buffer Objects)
-	// Cada atributo do vértice (coordenada, cores, coordenadas de textura, normal, etc)
-	// Pode ser arazenado em um VBO único ou em VBOs separados
+	// Triângulo orientado para cima (vértice superior no topo) - cor rosa forte
 	GLfloat vertices[] = {
-		// x   y     z   r   g    b
-		// T0
-		-0.5,  0.5, 0.0, 1.0, 0.0, 0.0,    // v0
-		-0.5, -0.5, 0.0, 0.0, 1.0, 0.0,    // v1
-		 0.0,  0.0, 0.0, 0.0, 0.0, 1.0,	   // v2
-		// T1
-        0.0,   0.0, 0.0, 1.0, 1.0, 0.0,    //v3
-        0.5,  -0.5, 0.0, 0.0, 1.0, 1.0,    //v4
-        0.5,   0.5, 0.0, 1.0, 0.0, 1.0	   //v5      
-
+		// x     y     z   r    g    b
+		 0.0,   0.5, 0.0, 1.0, 0.2, 0.6,    // v0 - rosa forte (vértice superior)
+		-0.5,  -0.5, 0.0, 1.0, 0.2, 0.6,    // v1 - rosa forte (vértice inferior esquerdo)
+		 0.5,  -0.5, 0.0, 1.0, 0.2, 0.6,    // v2 - rosa forte (vértice inferior direito)
 	};
 
 	GLuint VBO, VAO;
@@ -308,6 +300,53 @@ int setupGeometry()
 	//  Se está normalizado (entre zero e um)
 	//  Tamanho em bytes
 	//  Deslocamento a partir do byte zero
+
+	// Atributo posição - x, y, z
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *)0);
+	glEnableVertexAttribArray(0);
+
+	// Atributo cor - r, g b
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+
+	// Observe que isso é permitido, a chamada para glVertexAttribPointer registrou o VBO como o objeto de buffer de vértice
+	// atualmente vinculado - para que depois possamos desvincular com segurança
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// Desvincula o VAO (é uma boa prática desvincular qualquer buffer ou array para evitar bugs medonhos)
+	glBindVertexArray(0);
+
+	return VAO;
+}
+
+// Esta função está bastante hardcoded - objetivo é criar os buffers que armazenam a
+// geometria do contorno de um triângulo
+// Apenas atributo coordenada nos vértices
+// 1 VBO com as coordenadas, VAO com apenas 1 ponteiro para atributo
+// A função retorna o identificador do VAO
+int setupContour()
+{
+	// Triângulo orientado para cima (vértice superior no topo) - contorno branco
+	GLfloat vertices[] = {
+		// x     y     z   r    g    b
+		 0.0,   0.5, 0.0, 1.0, 1.0, 1.0,    // v0 - branco (vértice superior)
+		-0.5,  -0.5, 0.0, 1.0, 1.0, 1.0,    // v1 - branco (vértice inferior esquerdo)
+		 0.5,  -0.5, 0.0, 1.0, 1.0, 1.0,    // v2 - branco (vértice inferior direito)
+	};
+
+	GLuint VBO, VAO;
+	// Geração do identificador do VBO
+	glGenBuffers(1, &VBO);
+	// Faz a conexão (vincula) do buffer como um buffer de array
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	// Envia os dados do array de floats para o buffer da OpenGl
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	// Geração do identificador do VAO (Vertex Array Object)
+	glGenVertexArrays(1, &VAO);
+	// Vincula (bind) o VAO primeiro, e em seguida conecta e seta o(s) buffer(s) de vértices
+	// e os ponteiros para os atributos
+	glBindVertexArray(VAO);
 
 	// Atributo posição - x, y, z
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *)0);

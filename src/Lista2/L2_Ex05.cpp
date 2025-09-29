@@ -1,6 +1,6 @@
 /*
- * L2_Ex04 - Exercício 4 da Lista 2
- * Modificar o viewport para desenhar a cena apenas em um quadrante da janela da aplicação
+ * L2_Ex05 - Exercício 5 da Lista 2
+ * Desenhar a mesma cena nos 4 quadrantes da janela
  *
  * Adaptado por: Rossana Baptista Queiroz
  *
@@ -10,8 +10,8 @@
  *   - Fundamentos de Computação Gráfica (Jogos Digitais)
  *
  * Descrição:
- *   Este exercício demonstra como usar viewport para renderizar apenas em uma parte
- *   da janela da aplicação, criando um efeito de "janela dentro da janela".
+ *   Este exercício demonstra como usar múltiplos viewports para renderizar
+ *   a mesma cena em diferentes quadrantes da janela da aplicação.
  *
  * Histórico:
  *   - Versão inicial: 07/04/2017
@@ -98,7 +98,7 @@ int main()
 	// #endif
 
 	// Criação da janela GLFW
-	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "L2_Ex04 -- Taimisson", nullptr, nullptr);
+	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "L2_Ex05 -- Taimisson", nullptr, nullptr);
 	if (!window)
 	{
 		std::cerr << "Falha ao criar a janela GLFW" << std::endl;
@@ -162,7 +162,7 @@ int main()
 
 				// Cria uma string e define o FPS como título da janela.
 				char tmp[256];
-				sprintf(tmp, "L2_Ex04 - Viewport Quadrante -- Rossana\tFPS %.2lf", fps);
+				sprintf(tmp, "L2_Ex05 - Viewport Quadrante -- Rossana\tFPS %.2lf", fps);
 				glfwSetWindowTitle(window, tmp);
 
 				title_countdown_s = 0.1; // Reinicia o temporizador para atualizar o título periodicamente.
@@ -179,17 +179,40 @@ int main()
 		glLineWidth(2);  // Linha fina para o contorno
 		glPointSize(20);
 
-		// Definindo as dimensões da viewport com as mesmas dimensões da janela da aplicação
+		// Definindo as dimensões da viewport dividindo a janela em 4 quadrantes
 		int width, height;
 		glfwGetFramebufferSize(window, &width, &height);
-		glViewport(400, 300, 400, 300);
 
-		// Primeiro desenha o triângulo preenchido rosa
-		glBindVertexArray(VAO); // Conectando ao buffer de geometria
+		// Calculando as dimensões de cada quadrante
+		int quadrantWidth = width / 2;
+		int quadrantHeight = height / 2;
+
+		// Quadrante 1: Superior Esquerdo
+		glViewport(0, quadrantHeight, quadrantWidth, quadrantHeight);
+		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(contourVAO);
+		glDrawArrays(GL_LINE_LOOP, 0, 3);
 
-		// Depois desenha o contorno preto
-		glBindVertexArray(contourVAO); // Conectando ao buffer do contorno
+		// Quadrante 2: Superior Direito
+		glViewport(quadrantWidth, quadrantHeight, quadrantWidth, quadrantHeight);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(contourVAO);
+		glDrawArrays(GL_LINE_LOOP, 0, 3);
+
+		// Quadrante 3: Inferior Esquerdo
+		glViewport(0, 0, quadrantWidth, quadrantHeight);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(contourVAO);
+		glDrawArrays(GL_LINE_LOOP, 0, 3);
+
+		// Quadrante 4: Inferior Direito
+		glViewport(quadrantWidth, 0, quadrantWidth, quadrantHeight);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(contourVAO);
 		glDrawArrays(GL_LINE_LOOP, 0, 3);
 
 		glBindVertexArray(0);
