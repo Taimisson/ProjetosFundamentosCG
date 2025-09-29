@@ -49,19 +49,29 @@ include_directories(${stb_image_SOURCE_DIR})
 # Atualizado: HelloTriangle agora está em Exercicios/Lista2/HelloTriangle
 set(EXERCISES
     Lista2/HelloTriangle
-    Lista1/Ex05a
-    Lista1/Ex05b
-    Lista1/Ex05c
-    Lista1/Ex05d
-    Lista1/Ex06
-    Lista1/Ex06a
-    Lista1/Ex06b
-    Lista1/Ex06c
-    Lista1/Ex06d
-    Lista1/Ex06e
-    Lista1/Ex07
-    Lista1/Ex08
-    Lista1/Ex09
+    Lista1/L1_Ex05a
+    Lista1/L1_Ex05b
+    Lista1/L1_Ex05c
+    Lista1/L1_Ex05d
+    Lista1/L1_Ex06
+    Lista1/L1_Ex06a
+    Lista1/L1_Ex06b
+    Lista1/L1_Ex06c
+    Lista1/L1_Ex06d
+    Lista1/L1_Ex06e
+    Lista1/L1_Ex07
+    Lista1/L1_Ex08
+    Lista1/L1_Ex09
+    Lista2/L2_Ex01
+    Lista2/L2_Ex02
+    Lista2/L2_Ex04
+    Lista2/L2_Ex05
+    Lista2/HelloOrtho
+    Lista2/HelloSprites
+    Lista2/HelloTransforms
+    Lista2/HelloTransformsHardCoded
+    Lista2/Sprite
+    Lista2/HelloTexture
 )
 
 add_compile_options(-Wno-pragmas)

@@ -17,36 +17,25 @@ int setupGeometry();
 
 const GLuint WIDTH = 800, HEIGHT = 800;
 
+const int segments = 5;
+
 const GLchar *vertexShaderSource = R"(
-#version 400
-layout (location = 0) in vec3 position;
-uniform float uPointSize;        // <— novo
-void main()
-{
-    gl_Position = vec4(position, 1.0);
-    gl_PointSize = uPointSize;   // <— tamanho em pixels do ponto
-}
+ #version 400
+ layout (location = 0) in vec3 position;
+ void main()
+ {
+	 gl_Position = vec4(position.x, position.y, position.z, 1.0);
+ }
  )";
 
 const GLchar *fragmentShaderSource = R"(
-#version 400
-uniform vec4 inputColor;
-uniform bool uRoundPoint;        // <— novo: só ativa com GL_POINTS
-out vec4 color;
+ #version 400
+ uniform vec4 inputColor;
+ out vec4 color;
  void main()
-{
-    if (uRoundPoint) {
-        // coord 0..1 dentro do quadrado do ponto
-        vec2 p = gl_PointCoord - vec2(0.5);
-        float r = length(p);
-        // borda suave:
-        float alpha = smoothstep(0.5, 0.48, r);
-        if (r > 0.5) discard;          // recorta fora do círculo
-        color = vec4(inputColor.rgb, inputColor.a * alpha);
-    } else {
-        color = inputColor;            // linhas/triângulos normais
-    }
-}
+ {
+	 color = inputColor;
+ }
  )";
 
 int main()
@@ -58,7 +47,7 @@ int main()
 	 glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Ola Triangulo! -- Rossana", nullptr, nullptr);
+	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Exercício 6e! -- Taimisson", nullptr, nullptr);
 	if (!window)
 	{
 		std::cerr << "Falha ao criar a janela GLFW" << std::endl;
@@ -90,14 +79,7 @@ int main()
 
 	GLint colorLoc = glGetUniformLocation(shaderID, "inputColor");
 
-	GLint uPointSizeLoc  = glGetUniformLocation(shaderID, "uPointSize");
-	GLint uRoundPointLoc = glGetUniformLocation(shaderID, "uRoundPoint");
-
 	glUseProgram(shaderID); // Reseta o estado do shader para evitar problemas futuros
-
-	glEnable(GL_PROGRAM_POINT_SIZE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -111,26 +93,9 @@ int main()
 
 		glBindVertexArray(VAO); // Conectando ao buffer de geometria
 
-		// 1) Contorno (sem efeito de bolinha)
-		glUniform1i(uRoundPointLoc, GL_FALSE);
-		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f);
-		glDrawArrays(GL_LINE_LOOP, 0, 3);
+		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); // Azul ciano (cyan))
 
-		// 2) Pontos (bolinhas) — ativa modo circular e define tamanho
-		glUniform1i(uRoundPointLoc, GL_TRUE);
-		glUniform1f(uPointSizeLoc, 24.0f); // diâmetro em pixels (ajuste como quiser)
-
-		// P1 vermelho
-		glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
-		glDrawArrays(GL_POINTS, 0, 1);
-
-		// P2 azul
-		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f);
-		glDrawArrays(GL_POINTS, 1, 1);
-
-		// P3 verde
-		glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
-		glDrawArrays(GL_POINTS, 2, 1);
+		glDrawArrays(GL_TRIANGLES, 0, segments * 3 * 2);
 
 		// glBindVertexArray(0); // Desnecessário aqui, pois não há múltiplos VAOs
 
@@ -190,11 +155,40 @@ int setupShader()
 
 int setupGeometry()
 {
-	GLfloat vertices[] ={
-		0.0f, 0.6f, 0.0f,
-		0.6f, -0.3f, 0.0f,
-		-0.6f, -0.5f, 0.0f
-	};
+	float centerX = 0.0f;
+	float centerY = 0.0f;
+	float radius = 0.5f;
+	float radius2 = 0.18f;
+	GLfloat vertices[segments * 9 * 2];
+
+	for (int i = 0; i < segments; ++i) {
+		float theta1 = 4.08 + 2.0f * M_PI * i / segments;
+		float theta2 = 4.08 + 2.0f * M_PI * (i + 1) / segments;
+
+		vertices[i*18] = centerX;
+		vertices[i*18+1] = centerY;
+		vertices[i*18+2] = 0.0f;
+
+		vertices[i*18+3] = centerX + radius2 * cos(theta1);
+		vertices[i*18+4] = centerY + radius2 * sin(theta1);
+		vertices[i*18+5] = 0.0f;
+
+		vertices[i*18+6] = centerX + radius * cos(theta2);
+		vertices[i*18+7] = centerY + radius * sin(theta2);
+		vertices[i*18+8] = 0.0f;
+
+		vertices[i*18+9] = centerX;
+		vertices[i*18+10] = centerY;
+		vertices[i*18+11] = 0.0f;
+
+		vertices[i*18+12] = centerX + radius * cos(theta1);
+		vertices[i*18+13] = centerY + radius * sin(theta1);
+		vertices[i*18+14] = 0.0f;
+
+		vertices[i*18+15] = centerX + radius2 * cos(theta2);
+		vertices[i*18+16] = centerY + radius2 * sin(theta2);
+		vertices[i*18+17] = 0.0f;
+	}
 
 	GLuint VBO, VAO;
 	// Geração do identificador do VBO

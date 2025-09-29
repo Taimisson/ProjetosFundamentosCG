@@ -44,7 +44,7 @@ int main()
 	 glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Ola Triangulo! -- Rossana", nullptr, nullptr);
+	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Exercício 5b! -- Taimisson", nullptr, nullptr);
 	if (!window)
 	{
 		std::cerr << "Falha ao criar a janela GLFW" << std::endl;
@@ -90,16 +90,12 @@ int main()
 
 		glBindVertexArray(VAO); // Conectando ao buffer de geometria
 
-		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); // Azul (blue)
+		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); // enviando cor para variável uniform inputColor
 
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); // Azul ciano (cyan))
+		glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f); // enviando cor para variável uniform inputColor
+		// Contorno do polígono - GL_LINE_LOOP
 		glDrawArrays(GL_LINE_LOOP, 0, 3);
 		glDrawArrays(GL_LINE_LOOP, 3, 3);
-
-		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); // Azul ciano (cyan))
-		glDrawArrays(GL_POINTS, 0, 6);
 
 		// glBindVertexArray(0); // Desnecessário aqui, pois não há múltiplos VAOs
 

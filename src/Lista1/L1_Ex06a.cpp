@@ -17,7 +17,7 @@ int setupGeometry();
 
 const GLuint WIDTH = 800, HEIGHT = 800;
 
-const int segments = 5;
+const int segments = 8; // Número de segmentos para formar o octágono
 
 const GLchar *vertexShaderSource = R"(
  #version 400
@@ -42,12 +42,12 @@ int main()
 {
 	glfwInit();
 
-	 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // Alterado para 4
+	 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0); // Alterado para 0
 	 glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Ola Triangulo! -- Rossana", nullptr, nullptr);
+	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Exercício 6a! -- Taimisson", nullptr, nullptr);
 	if (!window)
 	{
 		std::cerr << "Falha ao criar a janela GLFW" << std::endl;
@@ -73,9 +73,9 @@ int main()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-	GLuint shaderID = setupShader();
+	GLuint shaderID = setupShader(); // Configura e compila os shaders
 
-	GLuint VAO = setupGeometry();
+	GLuint VAO = setupGeometry(); // Configura a geometria (octágono)
 
 	GLint colorLoc = glGetUniformLocation(shaderID, "inputColor");
 
@@ -95,7 +95,7 @@ int main()
 
 		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); // Azul ciano (cyan))
 
-		glDrawArrays(GL_TRIANGLES, 0, segments * 3 * 2);
+		glDrawArrays(GL_TRIANGLES, 0, segments * 3); //
 
 		// glBindVertexArray(0); // Desnecessário aqui, pois não há múltiplos VAOs
 
@@ -158,36 +158,24 @@ int setupGeometry()
 	float centerX = 0.0f;
 	float centerY = 0.0f;
 	float radius = 0.5f;
-	float radius2 = 0.18f;
-	GLfloat vertices[segments * 9 * 2];
+	GLfloat vertices[segments * 9];
 
 	for (int i = 0; i < segments; ++i) {
-		float theta1 = 4.08 + 2.0f * M_PI * i / segments;
-		float theta2 = 4.08 + 2.0f * M_PI * (i + 1) / segments;
+		float theta1 = 2.0f * M_PI * i / segments;
+		float theta2 = 2.0f * M_PI * (i + 1) / segments;
 
-		vertices[i*18] = centerX;
-		vertices[i*18+1] = centerY;
-		vertices[i*18+2] = 0.0f;
+		// Centro do triângulo
+		vertices[i*9] = centerX;
+		vertices[i*9+1] = centerY;
+		vertices[i*9+2] = 0.0f;
 
-		vertices[i*18+3] = centerX + radius2 * cos(theta1);
-		vertices[i*18+4] = centerY + radius2 * sin(theta1);
-		vertices[i*18+5] = 0.0f;
+		vertices[i*9+3] = centerX + radius * cos(theta1);
+		vertices[i*9+4] = centerY + radius * sin(theta1);
+		vertices[i*9+5] = 0.0f;
 
-		vertices[i*18+6] = centerX + radius * cos(theta2);
-		vertices[i*18+7] = centerY + radius * sin(theta2);
-		vertices[i*18+8] = 0.0f;
-
-		vertices[i*18+9] = centerX;
-		vertices[i*18+10] = centerY;
-		vertices[i*18+11] = 0.0f;
-
-		vertices[i*18+12] = centerX + radius * cos(theta1);
-		vertices[i*18+13] = centerY + radius * sin(theta1);
-		vertices[i*18+14] = 0.0f;
-
-		vertices[i*18+15] = centerX + radius2 * cos(theta2);
-		vertices[i*18+16] = centerY + radius2 * sin(theta2);
-		vertices[i*18+17] = 0.0f;
+		vertices[i*9+6] = centerX + radius * cos(theta2);
+		vertices[i*9+7] = centerY + radius * sin(theta2);
+		vertices[i*9+8] = 0.0f;
 	}
 
 	GLuint VBO, VAO;

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <assert.h>
+#include <cmath>
 
 using namespace std;
 
@@ -14,25 +15,38 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 int setupShader();
 int setupGeometry();
 
-const GLuint WIDTH = 800, HEIGHT = 600;
+const GLuint WIDTH = 800, HEIGHT = 800;
 
 const GLchar *vertexShaderSource = R"(
- #version 400
- layout (location = 0) in vec3 position;
- void main()
- {
-	 gl_Position = vec4(position.x, position.y, position.z, 1.0);
- }
+#version 400
+layout (location = 0) in vec3 position;
+uniform float uPointSize;        // <— novo
+void main()
+{
+    gl_Position = vec4(position, 1.0);
+    gl_PointSize = uPointSize;   // <— tamanho em pixels do ponto
+}
  )";
 
 const GLchar *fragmentShaderSource = R"(
- #version 400
- uniform vec4 inputColor;
- out vec4 color;
+#version 400
+uniform vec4 inputColor;
+uniform bool uRoundPoint;        // <— novo: só ativa com GL_POINTS
+out vec4 color;
  void main()
- {
-	 color = inputColor;
- }
+{
+    if (uRoundPoint) {
+        // coord 0..1 dentro do quadrado do ponto
+        vec2 p = gl_PointCoord - vec2(0.5);
+        float r = length(p);
+        // borda suave:
+        float alpha = smoothstep(0.5, 0.48, r);
+        if (r > 0.5) discard;          // recorta fora do círculo
+        color = vec4(inputColor.rgb, inputColor.a * alpha);
+    } else {
+        color = inputColor;            // linhas/triângulos normais
+    }
+}
  )";
 
 int main()
@@ -44,7 +58,7 @@ int main()
 	 glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Olá Pontos! -- Taimisson", nullptr, nullptr);
+	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Exercício 8! -- Taimisson", nullptr, nullptr);
 	if (!window)
 	{
 		std::cerr << "Falha ao criar a janela GLFW" << std::endl;
@@ -76,7 +90,14 @@ int main()
 
 	GLint colorLoc = glGetUniformLocation(shaderID, "inputColor");
 
+	GLint uPointSizeLoc  = glGetUniformLocation(shaderID, "uPointSize");
+	GLint uRoundPointLoc = glGetUniformLocation(shaderID, "uRoundPoint");
+
 	glUseProgram(shaderID); // Reseta o estado do shader para evitar problemas futuros
+
+	glEnable(GL_PROGRAM_POINT_SIZE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -90,11 +111,26 @@ int main()
 
 		glBindVertexArray(VAO); // Conectando ao buffer de geometria
 
-		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); // Azul ciano (cyan)) // enviando cor para variável uniform inputColor
+		// 1) Contorno (sem efeito de bolinha)
+		glUniform1i(uRoundPointLoc, GL_FALSE);
+		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f);
+		glDrawArrays(GL_LINE_LOOP, 0, 3);
 
-		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); // Azul ciano (cyan)) // enviando cor para variável uniform inputColor
-		// Apenas o desenho dos vértice - GL_POINTS
-		glDrawArrays(GL_POINTS, 0, 6);
+		// 2) Pontos (bolinhas) — ativa modo circular e define tamanho
+		glUniform1i(uRoundPointLoc, GL_TRUE);
+		glUniform1f(uPointSizeLoc, 24.0f); // diâmetro em pixels (ajuste como quiser)
+
+		// P1 vermelho
+		glUniform4f(colorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
+		glDrawArrays(GL_POINTS, 0, 1);
+
+		// P2 azul
+		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f);
+		glDrawArrays(GL_POINTS, 1, 1);
+
+		// P3 verde
+		glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f);
+		glDrawArrays(GL_POINTS, 2, 1);
 
 		// glBindVertexArray(0); // Desnecessário aqui, pois não há múltiplos VAOs
 
@@ -154,21 +190,10 @@ int setupShader()
 
 int setupGeometry()
 {
-	// Aqui setamos as coordenadas x, y e z do triângulo e as armazenamos de forma
-	// sequencial, já visando mandar para o VBO (Vertex Buffer Objects)
-	// Cada atributo do vértice (coordenada, cores, coordenadas de textura, normal, etc)
-	// Pode ser arazenado em um VBO único ou em VBOs separados
-	GLfloat vertices[] = {
-		// x   y     z
-		// T0
-		-0.5,  0.5, 0.0,     // v0
-		-0.5, -0.5, 0.0,	 // v1
-		 0.0,  0.0, 0.0,	 // v2
-		// T1
-        0.0,   0.0, 0.0,     //v3
-        0.5,  -0.5, 0.0,     //v4
-        0.5,   0.5, 0.0
-
+	GLfloat vertices[] ={
+		0.0f, 0.6f, 0.0f,
+		0.6f, -0.3f, 0.0f,
+		-0.6f, -0.5f, 0.0f
 	};
 
 	GLuint VBO, VAO;

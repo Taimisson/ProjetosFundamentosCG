@@ -17,7 +17,8 @@ int setupGeometry();
 
 const GLuint WIDTH = 800, HEIGHT = 800;
 
-const int segments = 5;
+const int segments = 100;
+const int total = 15;
 
 const GLchar *vertexShaderSource = R"(
  #version 400
@@ -47,7 +48,7 @@ int main()
 	 glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Ola Triangulo! -- Rossana", nullptr, nullptr);
+	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Exercício 6d! -- Taimisson", nullptr, nullptr);
 	if (!window)
 	{
 		std::cerr << "Falha ao criar a janela GLFW" << std::endl;
@@ -95,7 +96,7 @@ int main()
 
 		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); // Azul ciano (cyan))
 
-		glDrawArrays(GL_TRIANGLES, 0, segments * 3);
+		glDrawArrays(GL_TRIANGLES, 0, total * 3);
 
 		// glBindVertexArray(0); // Desnecessário aqui, pois não há múltiplos VAOs
 
@@ -158,11 +159,11 @@ int setupGeometry()
 	float centerX = 0.0f;
 	float centerY = 0.0f;
 	float radius = 0.5f;
-	GLfloat vertices[segments * 9];
+	GLfloat vertices[total * 9];
 
-	for (int i = 0; i < segments; ++i) {
-		float theta1 = 2.0f * M_PI * i / segments;
-		float theta2 = 2.0f * M_PI * (i + 1) / segments;
+	for (int i = 0; i < total; ++i) {
+		float theta1 = -0.4 + 2.0f * M_PI * i / segments;
+		float theta2 = -0.4 + 2.0f * M_PI * (i + 1) / segments;
 
 		// Centro do triângulo
 		vertices[i*9] = centerX;

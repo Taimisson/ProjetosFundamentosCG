@@ -17,8 +17,7 @@ int setupGeometry();
 
 const GLuint WIDTH = 800, HEIGHT = 800;
 
-const int segments = 100;
-const int total = 82;
+const int segments = 10000; // Número de segmentos para aproximar o círculo e aumentar a qualidade
 
 const GLchar *vertexShaderSource = R"(
  #version 400
@@ -29,6 +28,7 @@ const GLchar *vertexShaderSource = R"(
  }
  )";
 
+// colocar cor azul ciano
 const GLchar *fragmentShaderSource = R"(
  #version 400
  uniform vec4 inputColor;
@@ -48,7 +48,7 @@ int main()
 	 glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Ola Triangulo! -- Rossana", nullptr, nullptr);
+	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Exercício 6! -- Taimisson", nullptr, nullptr);
 	if (!window)
 	{
 		std::cerr << "Falha ao criar a janela GLFW" << std::endl;
@@ -78,25 +78,25 @@ int main()
 
 	GLuint VAO = setupGeometry();
 
-	GLint colorLoc = glGetUniformLocation(shaderID, "inputColor");
+	GLint colorLoc = glGetUniformLocation(shaderID, "inputColor"); // Pega o local (location) da variável uniforme inputColor no shader
 
 	glUseProgram(shaderID); // Reseta o estado do shader para evitar problemas futuros
 
 	while (!glfwWindowShouldClose(window))
 	{
-		glfwPollEvents();
+		glfwPollEvents(); // Checa se houve eventos de input (teclado, mouse, ...)
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // cor de fundo
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT); // Limpa o buffer de cor
 
-		glLineWidth(10);
+		glLineWidth(10); //
 		glPointSize(20);
 
 		glBindVertexArray(VAO); // Conectando ao buffer de geometria
 
-		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); // Azul ciano (cyan))
+		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); // Azul ciano (cyan)
 
-		glDrawArrays(GL_TRIANGLES, 0, total * 3);
+		glDrawArrays(GL_TRIANGLES, 0, segments * 9);
 
 		// glBindVertexArray(0); // Desnecessário aqui, pois não há múltiplos VAOs
 
@@ -156,28 +156,38 @@ int setupShader()
 
 int setupGeometry()
 {
-	float centerX = 0.0f;
-	float centerY = 0.0f;
-	float radius = 0.5f;
-	GLfloat vertices[total * 9];
-	float startAngle = M_PI / 5.0f;
+	static const float centerX = 0.0f;
+	static const float centerY = 0.0f;
+	static const float radius = 0.5f;
+	static const float angleStep = 2.0f * M_PI / segments; // Passo do ângulo para cada segmento
 
-	for (int i = 0; i < total; ++i) {
-		float theta1 = startAngle + 2.0f * M_PI * i / segments;
-		float theta2 = startAngle + 2.0f * M_PI * (i + 1) / segments;
+	GLfloat vertices[segments * 9]; // Cada segmento tem 3 vértices, cada vértice tem 3 coordenadas (x, y, z)
+
+	for (int i = 0; i < segments; ++i) {
+		const float theta1 = angleStep * i;
+		const float theta2 = angleStep * (i + 1);
+
+		const float cos1 = radius * cos(theta1);
+		const float sin1 = radius * sin(theta1);
+		const float cos2 = radius * cos(theta2);
+		const float sin2 = radius * sin(theta2);
+
+		const int baseIndex = i * 9;
 
 		// Centro do triângulo
-		vertices[i*9] = centerX;
-		vertices[i*9+1] = centerY;
-		vertices[i*9+2] = 0.0f;
+		vertices[baseIndex] = centerX;
+		vertices[baseIndex + 1] = centerY;
+		vertices[baseIndex + 2] = 0.0f;
 
-		vertices[i*9+3] = centerX + radius * cos(theta1);
-		vertices[i*9+4] = centerY + radius * sin(theta1);
-		vertices[i*9+5] = 0.0f;
+		vertices[baseIndex + 3] = centerX + cos1;
+		vertices[baseIndex + 4] = centerY + sin1;
+		vertices[baseIndex + 5] = 0.0f;
 
-		vertices[i*9+6] = centerX + radius * cos(theta2);
-		vertices[i*9+7] = centerY + radius * sin(theta2);
-		vertices[i*9+8] = 0.0f;
+		vertices[baseIndex + 6] = centerX + cos2;
+		vertices[baseIndex + 7] = centerY + sin2;
+		vertices[baseIndex + 8] = 0.0f;
+
+		// basicamente vai criando triângulos no sentido horário para formar o círculo
 	}
 
 	GLuint VBO, VAO;

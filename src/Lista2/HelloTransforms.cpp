@@ -35,6 +35,13 @@ using namespace std;
 // GLFW
 #include <GLFW/glfw3.h>
 
+// GLM
+#include <glm/glm.hpp> 
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+using namespace glm;
+
 // Protótipo da função de callback de teclado
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mode);
 
@@ -49,20 +56,25 @@ const GLuint WIDTH = 800, HEIGHT = 600;
 const GLchar *vertexShaderSource = R"(
  #version 400
  layout (location = 0) in vec3 position;
+ layout (location = 1) in vec3 color;
+ out vec3 vColor; 
+ uniform mat4 projection;
+ uniform mat4 model;
  void main()
  {
-	 gl_Position = vec4(position.x, position.y, position.z, 1.0);
+	 gl_Position = projection * model * vec4(position.x, position.y, position.z, 1.0);
+	 vColor = color;
  }
  )";
 
 // Código fonte do Fragment Shader (em GLSL): ainda hardcoded
 const GLchar *fragmentShaderSource = R"(
  #version 400
- uniform vec4 inputColor;
+ in vec3 vColor;
  out vec4 color;
  void main()
  {
-	 color = inputColor;
+	 color = vec4(vColor,1.0);
  }
  )";
 
@@ -90,7 +102,7 @@ int main()
 	// #endif
 
 	// Criação da janela GLFW
-	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Olá Triângulo! -- Taimisson", nullptr, nullptr);
+	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Ola Triangulo! -- Rossana", nullptr, nullptr);
 	if (!window)
 	{
 		std::cerr << "Falha ao criar a janela GLFW" << std::endl;
@@ -115,27 +127,28 @@ int main()
 	cout << "Renderer: " << renderer << endl;
 	cout << "OpenGL version supported " << version << endl;
 
-	// Definindo as dimensões da viewport com as mesmas dimensões da janela da aplicação
-	int width, height;
-	glfwGetFramebufferSize(window, &width, &height);
-	glViewport(0, 0, width, height);
 
 	// Compilando e buildando o programa de shader
 	GLuint shaderID = setupShader();
 
 	// Gerando um buffer simples, com a geometria de um triângulo
 	GLuint VAO = setupGeometry();
-
-	// Enviando a cor desejada (vec4) para o fragment shader
-	// Utilizamos a variáveis do tipo uniform em GLSL para armazenar esse tipo de info
-	// que não está nos buffers
-	GLint colorLoc = glGetUniformLocation(shaderID, "inputColor");
-
+	
 	glUseProgram(shaderID); // Reseta o estado do shader para evitar problemas futuros
 
 	double prev_s = glfwGetTime();	// Define o "tempo anterior" inicial.
 	double title_countdown_s = 0.1; // Intervalo para atualizar o título da janela com o FPS.
 
+	// Criação da matriz de projeção
+	mat4 projection = ortho(0.0, 800.0, 600.0, 0.0, -1.0, 1.0);
+
+	// Utilizamos a variáveis do tipo uniform em GLSL para armazenar esse tipo de info
+	// que não está nos buffers
+	// Mandar a matriz de projeção para o shader
+	glUniformMatrix4fv(glGetUniformLocation(shaderID, "projection"),1,GL_FALSE,value_ptr(projection));
+
+	mat4 model = mat4(1); //matriz identidade
+	
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
 	{
@@ -170,26 +183,36 @@ int main()
 		glLineWidth(10);
 		glPointSize(20);
 
+		// Definindo as dimensões da viewport com as mesmas dimensões da janela da aplicação
+		int width, height;
+		glfwGetFramebufferSize(window, &width, &height);
+		glViewport(0, 0, width, height);
+
 		glBindVertexArray(VAO); // Conectando ao buffer de geometria
 
-		glUniform4f(colorLoc, 0.0f, 1.0f, 0.0f, 1.0f); // enviando cor para variável uniform inputColor
+
+		model = mat4(1);
+		model = translate(model,vec3(400.0, 300.0, 0.0));
+		model = scale(model,vec3(400.0, 400.0, 1.0));
+		// Mandar a matriz de modelo para o shader
+		glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"),1,GL_FALSE,value_ptr(model));
 
 		// Chamada de desenho - drawcall
 		// Poligono Preenchido - GL_TRIANGLES
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		// alterar a cor para azul ciano
-		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); // enviando cor para variável uniform inputColor
+		//----------------
+		model = mat4(1);
+		model = translate(model,vec3(200.0, 300.0, 0.0));
+		model = scale(model,vec3(100.0, 100.0, 1.0));
+		// Mandar a matriz de modelo para o shader
+		glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"),1,GL_FALSE,value_ptr(model));
 
-		// Contorno do polígono - GL_LINE_LOOP
-		glDrawArrays(GL_LINE_LOOP, 0, 3);
-		glDrawArrays(GL_LINE_LOOP, 3, 3);
+		// Chamada de desenho - drawcall
+		// Poligono Preenchido - GL_TRIANGLES
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
-		// Apenas o desenho dos vértice - GL_POINTS
-		glDrawArrays(GL_POINTS, 0, 6);
-
-		// glBindVertexArray(0); // Desnecessário aqui, pois não há múltiplos VAOs
+		glBindVertexArray(0); // Desnecessário aqui, pois não há múltiplos VAOs
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);
@@ -274,15 +297,15 @@ int setupGeometry()
 	// Cada atributo do vértice (coordenada, cores, coordenadas de textura, normal, etc)
 	// Pode ser arazenado em um VBO único ou em VBOs separados
 	GLfloat vertices[] = {
-		// x   y     z
+		// x   y     z   r   g    b
 		// T0
-		-0.5,  0.5, 0.0,     // v0
-		-0.5, -0.5, 0.0,	 // v1
-		 0.0,  0.0, 0.0,	 // v2
+		-0.5,  0.5 , 0.0, 1.0, 0.0, 0.0,    // v0
+		-0.5, -0.5 , 0.0, 0.0, 1.0, 0.0,    // v1
+		 0.0,  0.0 , 0.0, 0.0, 0.0, 1.0,	   // v2
 		// T1
-        0.0,   0.0, 0.0,     //v3
-        0.5,  -0.5, 0.0,     //v4
-        0.5,   0.5, 0.0
+        0.0 ,   0.0 , 0.0, 1.0, 1.0, 0.0,    //v3
+        0.5 ,  -0.5 , 0.0, 0.0, 1.0, 1.0,    //v4
+        0.5 ,   0.5 , 0.0, 1.0, 0.0, 1.0	   //v5      
 
 	};
 
@@ -306,8 +329,14 @@ int setupGeometry()
 	//  Se está normalizado (entre zero e um)
 	//  Tamanho em bytes
 	//  Deslocamento a partir do byte zero
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)0);
+
+	// Atributo posição - x, y, z
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *)0);
 	glEnableVertexAttribArray(0);
+
+	// Atributo cor - r, g b
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
 
 	// Observe que isso é permitido, a chamada para glVertexAttribPointer registrou o VBO como o objeto de buffer de vértice
 	// atualmente vinculado - para que depois possamos desvincular com segurança

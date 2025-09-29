@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <assert.h>
-#include <cmath>
 
 using namespace std;
 
@@ -15,9 +14,7 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
 int setupShader();
 int setupGeometry();
 
-const GLuint WIDTH = 800, HEIGHT = 800;
-
-const int segments = 8; // Número de segmentos para formar o octágono
+const GLuint WIDTH = 800, HEIGHT = 600;
 
 const GLchar *vertexShaderSource = R"(
  #version 400
@@ -42,12 +39,12 @@ int main()
 {
 	glfwInit();
 
-	 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // Alterado para 4
-	 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0); // Alterado para 0
+	 glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	 glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	 glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	 glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Ola Octágono! -- Taimisson", nullptr, nullptr);
+	GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Exercício 5d! -- Taimisson", nullptr, nullptr);
 	if (!window)
 	{
 		std::cerr << "Falha ao criar a janela GLFW" << std::endl;
@@ -73,9 +70,9 @@ int main()
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-	GLuint shaderID = setupShader(); // Configura e compila os shaders
+	GLuint shaderID = setupShader();
 
-	GLuint VAO = setupGeometry(); // Configura a geometria (octágono)
+	GLuint VAO = setupGeometry();
 
 	GLint colorLoc = glGetUniformLocation(shaderID, "inputColor");
 
@@ -93,9 +90,16 @@ int main()
 
 		glBindVertexArray(VAO); // Conectando ao buffer de geometria
 
-		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); // Azul ciano (cyan))
+		glUniform4f(colorLoc, 0.0f, 0.0f, 1.0f, 1.0f); // Azul (blue)
 
-		glDrawArrays(GL_TRIANGLES, 0, segments * 3); //
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); // Azul ciano (cyan))
+		glDrawArrays(GL_LINE_LOOP, 0, 3);
+		glDrawArrays(GL_LINE_LOOP, 3, 3);
+
+		glUniform4f(colorLoc, 0.0f, 1.0f, 1.0f, 1.0f); // Azul ciano (cyan))
+		glDrawArrays(GL_POINTS, 0, 6);
 
 		// glBindVertexArray(0); // Desnecessário aqui, pois não há múltiplos VAOs
 
@@ -155,28 +159,22 @@ int setupShader()
 
 int setupGeometry()
 {
-	float centerX = 0.0f;
-	float centerY = 0.0f;
-	float radius = 0.5f;
-	GLfloat vertices[segments * 9];
+	// Aqui setamos as coordenadas x, y e z do triângulo e as armazenamos de forma
+	// sequencial, já visando mandar para o VBO (Vertex Buffer Objects)
+	// Cada atributo do vértice (coordenada, cores, coordenadas de textura, normal, etc)
+	// Pode ser arazenado em um VBO único ou em VBOs separados
+	GLfloat vertices[] = {
+		// x   y     z
+		// T0
+		-0.5,  0.5, 0.0,     // v0
+		-0.5, -0.5, 0.0,	 // v1
+		 0.0,  0.0, 0.0,	 // v2
+		// T1
+        0.0,   0.0, 0.0,     //v3
+        0.5,  -0.5, 0.0,     //v4
+        0.5,   0.5, 0.0
 
-	for (int i = 0; i < segments; ++i) {
-		float theta1 = 2.0f * M_PI * i / segments;
-		float theta2 = 2.0f * M_PI * (i + 1) / segments;
-
-		// Centro do triângulo
-		vertices[i*9] = centerX;
-		vertices[i*9+1] = centerY;
-		vertices[i*9+2] = 0.0f;
-
-		vertices[i*9+3] = centerX + radius * cos(theta1);
-		vertices[i*9+4] = centerY + radius * sin(theta1);
-		vertices[i*9+5] = 0.0f;
-
-		vertices[i*9+6] = centerX + radius * cos(theta2);
-		vertices[i*9+7] = centerY + radius * sin(theta2);
-		vertices[i*9+8] = 0.0f;
-	}
+	};
 
 	GLuint VBO, VAO;
 	// Geração do identificador do VBO

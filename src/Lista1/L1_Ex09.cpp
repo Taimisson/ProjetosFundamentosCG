@@ -49,7 +49,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow *win = glfwCreateWindow(WIDTH, HEIGHT, "Casinha - OpenGL", nullptr, nullptr);
+    GLFWwindow *win = glfwCreateWindow(WIDTH, HEIGHT, "Casinha - Taimisson", nullptr, nullptr);
     if (!win) { cerr << "Falha ao criar a janela\n"; glfwTerminate(); return -1; }
     glfwMakeContextCurrent(win);
     glfwSetKeyCallback(win, key_callback);
