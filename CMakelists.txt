@@ -66,6 +66,7 @@ set(EXERCISES
     Lista2/L2_Ex02
     Lista2/L2_Ex04
     Lista2/L2_Ex05
+    Lista2/L2_Ex06
     Lista2/HelloOrtho
     Lista2/HelloSprites
     Lista2/HelloTransforms
