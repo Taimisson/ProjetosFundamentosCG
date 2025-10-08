@@ -166,3 +166,82 @@ cmake --build cmake-build-debug --target L2_Ex06
 - **L2_Ex04**: Demonstra renderização em sub-regiões da janela
 - **L2_Ex05**: Mostra como reutilizar geometria em múltiplas regiões
 - **L2_Ex06**: Combina interatividade com coordenadas de tela para criação dinâmica
+
+## Respostas das Questões Teóricas
+
+### 3. Utilizando a câmera 2D do exercício anterior, desenhe algo na tela. O que acontece quando posicionamos os objetos? Por que é útil essa configuração?
+
+**Implementação:** Exercício L2_Ex06 (Criação interativa de triângulos)
+
+**O que acontece ao posicionar objetos:**
+
+Quando usamos o sistema de coordenadas de tela (xmin=0, xmax=800, ymin=600, ymax=0):
+
+1. **Posicionamento Direto**: Um objeto em (100, 50) aparece exatamente a 100 pixels da borda esquerda e 50 pixels do topo da janela.
+
+2. **Coordenadas Intuitivas**: Se você quer desenhar um botão de 200x50 pixels começando em (300, 100), basta usar essas coordenadas diretamente:
+   ```cpp
+   float vertices[] = {
+       300.0f, 100.0f,  // canto superior esquerdo
+       500.0f, 100.0f,  // canto superior direito
+       500.0f, 150.0f,  // canto inferior direito
+       300.0f, 150.0f   // canto inferior esquerdo
+   };
+   ```
+
+3. **Precisão de Pixel**: Cada unidade de coordenada corresponde exatamente a um pixel, eliminando adivinhações.
+
+4. **Eixo Y Invertido**: Como em sistemas de UI tradicionais, Y cresce para baixo, o que facilita o raciocínio para layouts de interface.
+
+**Por que é útil essa configuração:**
+
+1. **Interfaces Gráficas (GUI)**:
+   - Menus, botões, painéis posicionados com precisão pixel-perfect
+   - Textos e ícones alinhados exatamente onde você quer
+   - Layouts responsivos baseados no tamanho da janela
+
+2. **Compatibilidade com Design Tools**:
+   - Mockups feitos no Figma, Photoshop ou similar usam coordenadas de pixel
+   - Você pode copiar coordenadas diretamente do design para o código
+   - Reduz erros de tradução entre design e implementação
+
+3. **Desenvolvimento de Jogos 2D**:
+   - **HUD (Heads-Up Display)**: Barra de vida em (10, 10), minimapa em (700, 10)
+   - **Menus**: Sistemas de menu com posicionamento absoluto
+   - **Sprites UI**: Ícones, inventários, diálogos posicionados precisamente
+
+4. **Ferramentas de Edição**:
+   - Editores gráficos como Paint, Photoshop
+   - Ferramentas CAD 2D
+   - Editores de níveis de jogos
+
+5. **Input do Mouse**:
+   - Coordenadas do mouse já vêm em pixels da janela
+   - Não precisa converter: clique em (400, 300) → objeto em (400, 300)
+   - Implementado no L2_Ex06, onde cliques do mouse criam triângulos diretamente
+
+6. **Facilita Cálculos de UI**:
+   - Largura de 800 pixels? Centro em X = 400
+   - Barra de progresso de 0-100%? Largura = 800 * porcentagem
+   - Margens e padding em pixels fixos
+
+**Exemplo Prático (L2_Ex06):**
+```cpp
+// Input do mouse vem em coordenadas de tela
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        
+        // Não precisa converter! Já está em coordenadas certas
+        vertices.push_back(static_cast<float>(xpos));
+        vertices.push_back(static_cast<float>(ypos));
+    }
+}
+```
+
+A configuração de câmera 2D com coordenadas de tela é essencial para:
+- **Qualquer tipo de UI**: Menus, HUDs, painéis
+- **Ferramentas interativas**: Editores, aplicações gráficas
+- **Precisão pixel-perfect**: Quando cada pixel importa
+- **Facilidade de desenvolvimento**: Menos matemática, mais produtividade

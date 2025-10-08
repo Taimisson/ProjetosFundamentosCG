@@ -2,6 +2,8 @@
 
 Repositório para os exercícios da disciplina **Processamento Gráfico / Fundamentos de Computação Gráfica** utilizando **OpenGL moderno (Core Profile)** em C++.
 
+> **📝 Nota:** As respostas às questões teóricas de cada lista estão documentadas nos arquivos README dentro de cada pasta (`src/Lista1/README.md`, `src/Lista2/README.md`, etc.).
+
 ## 👥 Integrantes do Grupo
 Preencha com os nomes do(s) autor(es):
 Taimisson de Carvalho Schardosim
@@ -95,4 +97,3 @@ A janela deve exibir:
 | FPS muito baixo | Driver/software rasterizer | Atualizar driver GPU / usar GPU dedicada |
 
 ---
-
