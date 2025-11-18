@@ -12,6 +12,7 @@ from pathlib import Path
 from domain.interfaces.image_processor import ImageProcessorInterface
 from infrastructure.io.webcam_capture import WebcamCapture
 from infrastructure.io.sticker_manager import StickerManager
+from infrastructure.io.animated_sticker_overlay import AnimatedStickerOverlay
 
 
 class InteractiveWebcamEditor:
@@ -32,12 +33,16 @@ class InteractiveWebcamEditor:
         self.processors: Dict[str, ImageProcessorInterface] = {}
         self.active_processor: Optional[str] = None
         self.sticker_manager = StickerManager()
+        self.animated_overlay = AnimatedStickerOverlay()
         self.save_counter = 0
         self.mouse_x = 0
         self.mouse_y = 0
         
         # Carrega stickers disponíveis
         self._load_stickers()
+        
+        # Carrega spritesheet animado
+        self._load_animated_spritesheet()
         
     def _load_stickers(self):
         """Carrega stickers da pasta assets/stickers."""
@@ -82,6 +87,25 @@ class InteractiveWebcamEditor:
             print(f"✨ Total: {loaded_count} stickers carregados!\n")
         else:
             print("⚠️  Nenhum sticker foi carregado.\n")
+    
+    def _load_animated_spritesheet(self):
+        """Carrega spritesheet animado para overlay facial."""
+        spritesheet_path = Path("assets/spritesheets/necromancer_64.png")
+        
+        if spritesheet_path.exists():
+            # Carrega spritesheet (64x64 por frame, 12 frames)
+            success = self.animated_overlay.load_spritesheet(
+                str(spritesheet_path),
+                frame_width=64,
+                frame_height=64,
+                fps=12
+            )
+            
+            if success:
+                print(f"🎬 Spritesheet animado carregado: {spritesheet_path.name}")
+                print(f"   Use 'A' para ligar/desligar animação facial\n")
+        else:
+            print(f"⚠️  Spritesheet não encontrado: {spritesheet_path}\n")
         
     def register_processor(self, key: str, name: str, processor: ImageProcessorInterface):
         """
@@ -115,6 +139,14 @@ class InteractiveWebcamEditor:
         print("  4: Gatinho 🐱    5: Gato 😺        6: Grêmio ⚽")
         print("  7: Leão 🦁       8: Moodle 📚      9: Muehehe 😆")
         print("  0: Peixe 🐠")
+        
+        print("\n🎬 ANIMAÇÃO FACIAL:")
+        print("-" * 50)
+        print("  A: Ligar/Desligar stickers animados no rosto")
+        print("  +: Aumentar tamanho dos stickers animados")
+        print("  -: Diminuir tamanho dos stickers animados")
+        print("  [: Diminuir velocidade da animação")
+        print("  ]: Aumentar velocidade da animação")
             
         print("\n⚙️  COMANDOS:")
         print("-" * 50)
@@ -203,8 +235,11 @@ class InteractiveWebcamEditor:
                 frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
             elif frame.dtype == np.float64:
                 frame = np.uint8(np.clip(frame, 0, 255))
+        
+        # Aplica stickers animados (overlay facial)
+        frame = self.animated_overlay.apply(frame)
                 
-        # Aplica stickers
+        # Aplica stickers estáticos
         frame = self.sticker_manager.apply_stickers(frame)
         
         # Overlay de informações
@@ -282,6 +317,39 @@ class InteractiveWebcamEditor:
         if key_char == 'c':
             self.sticker_manager.clear_stickers()
             print("🧹 Stickers removidos.")
+            return True
+        
+        # Ligar/Desligar animação facial (A)
+        if key_char == 'a':
+            self.animated_overlay.toggle()
+            return True
+        
+        # Aumentar tamanho dos stickers animados (+)
+        if key_char == '+' or key_char == '=':
+            current_scale = self.animated_overlay.sticker_scale
+            self.animated_overlay.set_sticker_scale(current_scale + 0.02)
+            return True
+        
+        # Diminuir tamanho dos stickers animados (-)
+        if key_char == '-' or key_char == '_':
+            current_scale = self.animated_overlay.sticker_scale
+            self.animated_overlay.set_sticker_scale(current_scale - 0.02)
+            return True
+        
+        # Diminuir velocidade da animação ([)
+        if key_char == '[':
+            sprite = self.animated_overlay.spritesheet_manager.spritesheets.get("main_sprite")
+            if sprite:
+                new_fps = max(1, sprite.fps - 2)
+                self.animated_overlay.set_fps(new_fps)
+            return True
+        
+        # Aumentar velocidade da animação (])
+        if key_char == ']':
+            sprite = self.animated_overlay.spritesheet_manager.spritesheets.get("main_sprite")
+            if sprite:
+                new_fps = min(30, sprite.fps + 2)
+                self.animated_overlay.set_fps(new_fps)
             return True
             
         # Capturar screenshot (Q)
