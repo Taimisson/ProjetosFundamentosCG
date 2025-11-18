@@ -1,0 +1,1 @@
+"""Domínio - Entidades do sistema."""
