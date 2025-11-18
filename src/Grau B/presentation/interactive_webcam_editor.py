@@ -13,6 +13,7 @@ from domain.interfaces.image_processor import ImageProcessorInterface
 from infrastructure.io.webcam_capture import WebcamCapture
 from infrastructure.io.sticker_manager import StickerManager
 from infrastructure.io.animated_sticker_overlay import AnimatedStickerOverlay
+from infrastructure.io.dog_filter_overlay import DogFilterOverlay
 
 
 class InteractiveWebcamEditor:
@@ -34,6 +35,7 @@ class InteractiveWebcamEditor:
         self.active_processor: Optional[str] = None
         self.sticker_manager = StickerManager()
         self.animated_overlay = AnimatedStickerOverlay()
+        self.dog_filter = DogFilterOverlay()
         self.save_counter = 0
         self.mouse_x = 0
         self.mouse_y = 0
@@ -43,6 +45,9 @@ class InteractiveWebcamEditor:
         
         # Carrega spritesheet animado
         self._load_animated_spritesheet()
+        
+        # Carrega filtro de cachorro
+        self._load_dog_filter()
         
     def _load_stickers(self):
         """Carrega stickers da pasta assets/stickers."""
@@ -106,6 +111,19 @@ class InteractiveWebcamEditor:
                 print(f"   Use 'A' para ligar/desligar animação facial\n")
         else:
             print(f"⚠️  Spritesheet não encontrado: {spritesheet_path}\n")
+    
+    def _load_dog_filter(self):
+        """Carrega filtro de cachorro estilo Snapchat."""
+        dog_filter_path = Path("assets/dog_filter/snapchat.png")
+        
+        if dog_filter_path.exists():
+            success = self.dog_filter.load_filter(str(dog_filter_path))
+            
+            if success:
+                print(f"🐶 Filtro de cachorro carregado: {dog_filter_path.name}")
+                print(f"   Use 'D' para ligar/desligar filtro de cachorro\n")
+        else:
+            print(f"⚠️  Filtro de cachorro não encontrado: {dog_filter_path}\n")
         
     def register_processor(self, key: str, name: str, processor: ImageProcessorInterface):
         """
@@ -147,6 +165,10 @@ class InteractiveWebcamEditor:
         print("  -: Diminuir tamanho dos stickers animados")
         print("  [: Diminuir velocidade da animação")
         print("  ]: Aumentar velocidade da animação")
+        
+        print("\n🐶 FILTRO DE CACHORRO:")
+        print("-" * 50)
+        print("  D: Ligar/Desligar filtro de cachorro (Snapchat)")
             
         print("\n⚙️  COMANDOS:")
         print("-" * 50)
@@ -238,6 +260,9 @@ class InteractiveWebcamEditor:
         
         # Aplica stickers animados (overlay facial)
         frame = self.animated_overlay.apply(frame)
+        
+        # Aplica filtro de cachorro
+        frame = self.dog_filter.apply(frame)
                 
         # Aplica stickers estáticos
         frame = self.sticker_manager.apply_stickers(frame)
@@ -322,6 +347,11 @@ class InteractiveWebcamEditor:
         # Ligar/Desligar animação facial (A)
         if key_char == 'a':
             self.animated_overlay.toggle()
+            return True
+        
+        # Ligar/Desligar filtro de cachorro (D)
+        if key_char == 'd':
+            self.dog_filter.toggle()
             return True
         
         # Aumentar tamanho dos stickers animados (+)
