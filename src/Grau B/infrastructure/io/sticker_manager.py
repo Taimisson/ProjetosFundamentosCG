@@ -105,7 +105,7 @@ class StickerManager:
         self.available_stickers[name] = sticker_img
         return True
     
-    def add_sticker(self, name: str, x: int, y: int):
+    def add_sticker(self, name: str, x: int, y: int) -> bool:
         """
         Adiciona sticker na posição especificada.
         
@@ -113,13 +113,16 @@ class StickerManager:
             name: Nome do sticker previamente carregado
             x: Posição X
             y: Posição Y
+            
+        Returns:
+            True se adicionou com sucesso, False se sticker não existe
         """
         if name not in self.available_stickers:
-            print(f"⚠️ Sticker '{name}' não está carregado.")
-            return
+            return False
             
         sticker_img = self.available_stickers[name]
         self.stickers.append(Sticker(sticker_img, x, y))
+        return True
         
     def clear_stickers(self):
         """Remove todos os stickers aplicados."""

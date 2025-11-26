@@ -292,8 +292,10 @@ class InteractiveImageEditor:
         sticker_keys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
         if key_char in sticker_keys:
             # Adiciona sticker na última posição do mouse
-            self.sticker_manager.add_sticker(key_char, self.mouse_x, self.mouse_y)
-            print(f"🎭 Sticker '{key_char.upper()}' adicionado em ({self.mouse_x}, {self.mouse_y})")
+            if self.sticker_manager.add_sticker(key_char, self.mouse_x, self.mouse_y):
+                print(f"🎭 Sticker '{key_char}' adicionado em ({self.mouse_x}, {self.mouse_y})")
+            else:
+                print(f"⚠️ Sticker '{key_char}' não disponível. Use teclas 0-9.")
             return True
             
         return True
