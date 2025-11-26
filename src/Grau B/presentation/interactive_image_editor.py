@@ -11,6 +11,7 @@ from pathlib import Path
 
 from domain.interfaces.image_processor import ImageProcessorInterface
 from infrastructure.io.sticker_manager import StickerManager
+from infrastructure.image_processing.color_conversion import ChannelSeparator
 
 
 class InteractiveImageEditor:
@@ -23,15 +24,21 @@ class InteractiveImageEditor:
     def __init__(self):
         """Inicializa editor interativo."""
         self.processors: Dict[str, ImageProcessorInterface] = {}
-        self.active_processor: Optional[str] = None
+        self.active_processors: Dict[str, bool] = {}  # Filtros ativos
         self.sticker_manager = StickerManager()
         self.original_image: Optional[np.ndarray] = None
         self.save_counter = 0
         self.mouse_x = 0
         self.mouse_y = 0
+        self.selected_channel = None  # 'r', 'g', 'b' ou None
         
         # Carrega stickers disponíveis
         self._load_stickers()
+        
+        # Adiciona separação de canais (teclas R, G, B)
+        self.register_processor('x', 'Canal Vermelho (R)', ChannelSeparator(channel='r'))
+        self.register_processor('y', 'Canal Verde (G)', ChannelSeparator(channel='g'))
+        self.register_processor('z', 'Canal Azul (B)', ChannelSeparator(channel='b'))
         
     def _load_stickers(self):
         """
@@ -100,7 +107,8 @@ class InteractiveImageEditor:
             'processor': processor,
             'active': False
         }
-        
+        self.active_processors[key] = False
+
     def display_instructions(self):
         """Exibe instruções de uso."""
         print("\n" + "=" * 50)
@@ -126,6 +134,10 @@ class InteractiveImageEditor:
         print("  Q: Salvar imagem atual")
         print("  F: Finalizar edição")
         print("  CLICK: Adicionar sticker selecionado")
+        print("  X: Selecionar canal Vermelho (R)")
+        print("  Y: Selecionar canal Verde (G)")
+        print("  Z: Selecionar canal Azul (B)")
+        print("  V: Voltar para RGB completo")
         print("=" * 50)
         
     def edit_image(self, image_path: str):
@@ -196,12 +208,9 @@ class InteractiveImageEditor:
         Returns:
             Frame processado
         """
-        # Aplica filtro ativo
-        if self.active_processor:
-            processor_info = self.processors[self.active_processor]
-            processor = processor_info['processor']
-            
-            # Cria Image entity temporário
+        # Se canal selecionado, extrai canal antes de aplicar filtros
+        if self.selected_channel:
+            from infrastructure.image_processing.color_conversion import ChannelSeparator
             from domain.entities.image import Image
             temp_image = Image(
                 data=frame,
@@ -210,33 +219,63 @@ class InteractiveImageEditor:
                 channels=frame.shape[2] if len(frame.shape) > 2 else 1,
                 name="temp"
             )
-            
-            # Processa
-            processed = processor.process(temp_image)
-            frame = processed.data
-            
-            # Converte para 3 canais se necessário
+            channel_img = ChannelSeparator(channel=self.selected_channel).process(temp_image)
+            frame = channel_img.data
+            # Converte para 3 canais para visualização
             if len(frame.shape) == 2:
                 frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
-            elif frame.dtype == np.float64:
-                frame = np.uint8(np.clip(frame, 0, 255))
-                
+            # Aplica todos os filtros ativos sequencialmente ao canal
+            for key, active in self.active_processors.items():
+                if active:
+                    processor = self.processors[key]['processor']
+                    temp_image = Image(
+                        data=frame,
+                        width=frame.shape[1],
+                        height=frame.shape[0],
+                        channels=frame.shape[2] if len(frame.shape) > 2 else 1,
+                        name="temp"
+                    )
+                    processed = processor.process(temp_image)
+                    frame = processed.data
+                    if len(frame.shape) == 2:
+                        frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+                    elif frame.dtype == np.float64:
+                        frame = np.uint8(np.clip(frame, 0, 255))
+        else:
+            # Modo RGB completo: aplica todos os filtros ativos sequencialmente
+            from domain.entities.image import Image
+            for key, active in self.active_processors.items():
+                if active:
+                    processor = self.processors[key]['processor']
+                    temp_image = Image(
+                        data=frame,
+                        width=frame.shape[1],
+                        height=frame.shape[0],
+                        channels=frame.shape[2] if len(frame.shape) > 2 else 1,
+                        name="temp"
+                    )
+                    processed = processor.process(temp_image)
+                    frame = processed.data
+                    if len(frame.shape) == 2:
+                        frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+                    elif frame.dtype == np.float64:
+                        frame = np.uint8(np.clip(frame, 0, 255))
         # Aplica stickers
         frame = self.sticker_manager.apply_stickers(frame)
         
-        # Exibe filtro ativo
-        if self.active_processor:
-            filter_name = self.processors[self.active_processor]['name']
+        # Exibe filtros ativos
+        active_names = [self.processors[k]['name'] for k, v in self.active_processors.items() if v]
+        if active_names:
             cv2.putText(
-                frame, 
-                f"Filtro: {filter_name}", 
+                frame,
+                f"Filtros: {', '.join(active_names)}",
                 (10, 30),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.7,
                 (0, 255, 0),
                 2
             )
-            
+        
         return frame
         
     def _handle_key(self, key: int, current_frame: np.ndarray) -> bool:
@@ -257,10 +296,12 @@ class InteractiveImageEditor:
             print("✅ Edição finalizada.")
             return False
             
-        # Remover filtro (R)
+        # Remover todos os filtros (R)
         if key_char == 'r':
-            self.active_processor = None
-            print("🔄 Filtro removido.")
+            for k in self.processors:
+                self.processors[k]['active'] = False
+                self.active_processors[k] = False
+            print("🔄 Todos os filtros removidos.")
             return True
             
         # Limpar stickers (C)
@@ -274,18 +315,34 @@ class InteractiveImageEditor:
             self._save_frame(current_frame)
             return True
             
-        # Ativar filtro
+        # Ativar/desativar filtro
         if key_char in self.processors:
-            # Desativa outros filtros
-            for k in self.processors:
-                self.processors[k]['active'] = False
-                
-            # Ativa filtro selecionado
-            self.processors[key_char]['active'] = True
-            self.active_processor = key_char
-            
+            # Alterna estado do filtro
+            self.processors[key_char]['active'] = not self.processors[key_char]['active']
+            self.active_processors[key_char] = self.processors[key_char]['active']
             filter_name = self.processors[key_char]['name']
-            print(f"✨ Filtro ativado: {filter_name}")
+            if self.processors[key_char]['active']:
+                print(f"✨ Filtro ativado: {filter_name}")
+            else:
+                print(f"❌ Filtro desativado: {filter_name}")
+            return True
+            
+        # Seleção de canal
+        if key_char == 'x':
+            self.selected_channel = 'r'
+            print("🔴 Canal vermelho selecionado.")
+            return True
+        if key_char == 'y':
+            self.selected_channel = 'g'
+            print("🟢 Canal verde selecionado.")
+            return True
+        if key_char == 'z':
+            self.selected_channel = 'b'
+            print("🔵 Canal azul selecionado.")
+            return True
+        if key_char == 'v':
+            self.selected_channel = None
+            print("🌈 Imagem RGB completa selecionada.")
             return True
             
         # Adicionar sticker (teclas numéricas 0-9)
