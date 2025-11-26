@@ -24,7 +24,7 @@ class HistogramTool:
     
     def __init__(self):
         """Inicializa a ferramenta de histogramas."""
-        self.output_dir = Path("assets/images/output/histograms")
+        self.output_dir = Path(__file__).parent.parent / "assets/images/output/histograms"
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
     def _load_image(self, image_path: str) -> Image:
