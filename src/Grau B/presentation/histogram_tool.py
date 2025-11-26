@@ -1,3 +1,7 @@
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
 """
 Ferramenta para visualização e análise de histogramas.
 
@@ -217,7 +221,7 @@ class HistogramTool:
         print(f"✅ Histograma RGB salvo em: {output_path}")
         return str(output_path)
     
-    def generate_all_histograms(self, image_path: str = "assets/images/input/baboon.png"):
+    def generate_all_histograms(self, image_path: str = "D:\\Projetos\\ProjetosFundamentosCG\\src\\Grau B\\assets\\images\\input\\baboon.png"):
         """
         Gera todos os histogramas de uma vez.
         
@@ -254,4 +258,4 @@ class HistogramTool:
 if __name__ == "__main__":
     # Testa a ferramenta
     tool = HistogramTool()
-    tool.generate_all_histograms()
+    tool.generate_all_histograms(image_path="D:/Projetos/ProjetosFundamentosCG/src/Grau B/assets/images/input/baboon.png")
