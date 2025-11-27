@@ -38,6 +38,7 @@ def show_main_menu():
     print("  1️⃣  MODO CLI     - Menu tradicional (aplicar e salvar)")
     print("  2️⃣  MODO FOTO    - Editor interativo de imagem (tempo real)")
     print("  3️⃣  MODO VÍDEO   - Editor de webcam (tempo real)")
+    print("  4️⃣  HISTOGRAMA   - Gerar gráficos de histograma")
     print("  0️⃣  SAIR         - Encerrar aplicação")
     print("=" * 70)
 
@@ -252,8 +253,8 @@ def main():
     while True:
         show_main_menu()
         
-        choice = input("\n➤ Selecione o modo (0-3): ").strip()
-        
+        choice = input("\n➤ Selecione o modo (0-4): ").strip()
+
         if choice == '0':
             print("\n" + "=" * 70)
             print("👋 Encerrando aplicação... Até logo!")
@@ -265,8 +266,20 @@ def main():
             modo_foto()
         elif choice == '3':
             modo_video()
+        elif choice == '4':
+            # Integração do histograma
+            from presentation.histogram_tool import HistogramTool
+            print("\n" + "=" * 60)
+            print("MODO HISTOGRAMA - ANÁLISE DE HISTOGRAMAS")
+            print("=" * 60)
+            image_path = input("\n➤ Digite o caminho da imagem para análise de histograma: ").strip()
+            if not Path(image_path).exists():
+                print(f"❌ Erro: Arquivo '{image_path}' não encontrado!")
+            else:
+                tool = HistogramTool()
+                tool.generate_all_histograms(image_path=image_path)
         else:
-            print("\n❌ Opção inválida! Escolha entre 0 e 3.")
+            print("\n❌ Opção inválida! Escolha entre 0 e 4.")
 
 
 if __name__ == "__main__":
