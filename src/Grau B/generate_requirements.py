@@ -8,6 +8,8 @@ Executa:
 
 from presentation.comparison_tool import ComparisonTool
 from presentation.histogram_tool import HistogramTool
+import os
+from pathlib import Path
 
 
 def main():
@@ -16,8 +18,22 @@ def main():
     print("🎯 GERADOR DE REQUISITOS OBRIGATÓRIOS - GRAU B")
     print("=" * 70)
     
-    # Imagem padrão de teste
-    image_path = "assets/images/input/baboon.png"
+    # Solicita imagem de teste ao usuário
+    while True:
+        image_path = input("\n➤ Digite o caminho da imagem de teste para gerar os requisitos: ").strip()
+        if not image_path:
+            image_path = "assets/images/input/baboon.png"
+        if not os.path.exists(image_path):
+            print(f"❌ Erro: Arquivo '{image_path}' não encontrado! Informe um caminho válido.")
+        else:
+            break
+    
+    # Diretório base do Grau B
+    grau_b_dir = Path(__file__).parent
+    comparisons_dir = grau_b_dir / "assets/images/output/comparisons"
+    histograms_dir = grau_b_dir / "assets/images/output/histograms"
+    comparisons_dir.mkdir(parents=True, exist_ok=True)
+    histograms_dir.mkdir(parents=True, exist_ok=True)
     
     # Gera comparações visuais
     print("\n📌 PARTE 1: COMPARAÇÕES VISUAIS\n")
@@ -32,9 +48,10 @@ def main():
     print("\n\n" + "=" * 70)
     print("🎉 TODOS OS REQUISITOS OBRIGATÓRIOS FORAM GERADOS!")
     print("=" * 70)
+    # Mensagem final com caminho absoluto
     print("\n📂 Locais dos arquivos:")
-    print("   Comparações: assets/images/output/comparisons/")
-    print("   Histogramas: assets/images/output/histograms/")
+    print(f"   Comparações: {comparisons_dir.resolve()}")
+    print(f"   Histogramas: {histograms_dir.resolve()}")
     print("\n✅ Pronto para entrega!\n")
 
 

@@ -267,17 +267,26 @@ def main():
         elif choice == '3':
             modo_video()
         elif choice == '4':
-            # Integração do histograma
-            from presentation.histogram_tool import HistogramTool
+            # Integração do generate_requirements.py
             print("\n" + "=" * 60)
-            print("MODO HISTOGRAMA - ANÁLISE DE HISTOGRAMAS")
+            print("MODO ENTREGA - GERAR TODOS OS REQUISITOS OBRIGATÓRIOS")
             print("=" * 60)
-            image_path = input("\n➤ Digite o caminho da imagem para análise de histograma: ").strip()
-            if not Path(image_path).exists():
-                print(f"❌ Erro: Arquivo '{image_path}' não encontrado!")
-            else:
-                tool = HistogramTool()
-                tool.generate_all_histograms(image_path=image_path)
+            try:
+                import importlib.util
+                import sys
+                from pathlib import Path
+                grau_b_dir = Path(__file__).parent
+                gen_path = grau_b_dir / "generate_requirements.py"
+                if not gen_path.exists():
+                    print(f"❌ Erro: Arquivo '{gen_path}' não encontrado!")
+                else:
+                    spec = importlib.util.spec_from_file_location("generate_requirements", str(gen_path))
+                    gen_module = importlib.util.module_from_spec(spec)
+                    sys.modules["generate_requirements"] = gen_module
+                    spec.loader.exec_module(gen_module)
+                    gen_module.main()
+            except Exception as e:
+                print(f"❌ Erro ao executar generate_requirements: {e}")
         else:
             print("\n❌ Opção inválida! Escolha entre 0 e 4.")
 

@@ -33,7 +33,8 @@ class ComparisonTool:
     
     def __init__(self):
         """Inicializa a ferramenta de comparação."""
-        self.output_dir = Path("assets/images/output/comparisons")
+        grau_b_dir = Path(__file__).parent.parent
+        self.output_dir = grau_b_dir / "assets/images/output/comparisons"
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
     def _load_image(self, image_path: str) -> Image:

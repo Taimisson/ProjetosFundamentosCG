@@ -81,6 +81,8 @@ Escolha entre 3 modos:
 - **1** = CLI (tradicional, menu com opções)
 - **2** = FOTO (editor interativo com teclas)
 - **3** = VÍDEO (webcam em tempo real)
+- **4** = GERAR HISTOGRAMAS (com image path)
+
 
 ### Descrição dos Modos
 
